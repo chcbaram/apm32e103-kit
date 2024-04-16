@@ -1,3 +1,4 @@
+
 #include "hal_i2c.h"
 
 
@@ -11,6 +12,16 @@
 #define I2C_TIMEOUT_TCR     (25U)          /*!< 25 ms */
 #define I2C_TIMEOUT_TXIS    (25U)          /*!< 25 ms */
 #define I2C_TIMEOUT_FLAG    (25U)          /*!< 25 ms */
+
+
+
+static HAL_StatusTypeDef HAL_I2C_BUSY(I2C_T *hi2c);
+static HAL_StatusTypeDef HAL_I2C_START(I2C_T *hi2c);
+static HAL_StatusTypeDef HAL_I2C_STOP(I2C_T *hi2c);
+static HAL_StatusTypeDef HAL_I2C_ADDR_TX(I2C_T *hi2c, uint16_t dev_address);
+static HAL_StatusTypeDef HAL_I2C_ADDR_RX(I2C_T *hi2c, uint16_t dev_address);
+static HAL_StatusTypeDef HAL_I2C_DATA_TX(I2C_T *hi2c, uint8_t tx_data, bool ack, uint32_t pre_time, uint32_t timeout);
+static HAL_StatusTypeDef HAL_I2C_DATA_RX(I2C_T *hi2c, uint8_t *p_data, bool ack, uint32_t pre_time, uint32_t timeout);
 
 
 
