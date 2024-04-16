@@ -21,6 +21,7 @@ static void delayUs(uint32_t us);
 static void cliI2C(cli_args_t *args);
 #endif
 bool HAL_I2C_IsDeviceReady(I2C_T *hi2c, uint16_t DevAddress, uint32_t Trials, uint32_t Timeout);
+bool I2C_WaitOnFlagUntilTimeout(I2C_T *hi2c, I2C_FLAG_T Flag, uint8_t Status, uint32_t Timeout, uint32_t Tickstart);
 
 
 static uint32_t i2c_timeout[I2C_MAX_CH];
@@ -500,6 +501,21 @@ bool HAL_I2C_IsDeviceReady(I2C_T *hi2c, uint16_t DevAddress, uint32_t Trials, ui
   return ret;
 }
 
+bool I2C_WaitOnFlagUntilTimeout(I2C_T *hi2c, I2C_FLAG_T Flag, uint8_t Status,
+                                                    uint32_t Timeout, uint32_t Tickstart)
+{
+  while (I2C_ReadStatusFlag(hi2c, Flag) == Status)
+  {
+    if (((millis() - Tickstart) > Timeout) || (Timeout == 0U))
+    {
+      if ((I2C_ReadStatusFlag(hi2c, Flag) == Status))
+      {
+        return false;
+      }
+    }
+  }
+  return true;
+}
 
 void I2C1_EV_IRQHandler(void)
 {
