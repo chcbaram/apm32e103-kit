@@ -1,5 +1,5 @@
-#ifndef HW_H_
-#define HW_H_
+#ifndef DDR_H_
+#define DDR_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,11 +7,9 @@ extern "C" {
 
 #include "hw_def.h"
 
-#include "led.h"
-#include "uart.h"
 
 
-bool hwInit(void);
+bool ddrInit(void);
 
 
 #ifdef __cplusplus
