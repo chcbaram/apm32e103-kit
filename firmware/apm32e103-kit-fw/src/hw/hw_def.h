@@ -35,12 +35,18 @@
 #define _USE_HW_BUTTON
 #define      HW_BUTTON_MAX_CH       1
 
+#define _USE_HW_I2C
+#define      HW_I2C_MAX_CH          1
+#define      HW_I2C_CH_EEPROM       _DEF_I2C1
+
+
 
 //-- USE CLI
 //
 #define _USE_CLI_HW_LED             1
 #define _USE_CLI_HW_BUTTON          1
 #define _USE_CLI_HW_GPIO            1
+#define _USE_CLI_HW_I2C             1
 
 
 typedef enum

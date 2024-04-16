@@ -39,6 +39,7 @@ bool hwInit(void)
 
   gpioInit();
   buttonInit();
+  i2cInit();
 
   return true;
 }

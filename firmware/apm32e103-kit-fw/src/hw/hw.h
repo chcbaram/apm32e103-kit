@@ -14,6 +14,7 @@ extern "C" {
 #include "cli_gui.h"
 #include "button.h"
 #include "gpio.h"
+#include "i2c.h"
 
 
 bool hwInit(void);

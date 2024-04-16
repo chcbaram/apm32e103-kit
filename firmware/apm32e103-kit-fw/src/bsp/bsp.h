@@ -13,6 +13,8 @@ extern "C" {
 #include "apm32e10x_rcm.h"
 #include "apm32e10x_usart.h"
 #include "apm32e10x_dma.h"
+#include "apm32e10x_i2c.h"
+#include "apm32e10x_misc.h"
 
 
 void logPrintf(const char *fmt, ...);
