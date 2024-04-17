@@ -37,6 +37,7 @@ bool hwInit(void)
   logPrintf("Booting..Clock\t\t: %d Mhz\r\n", (int)RCM_ReadSYSCLKFreq()/1000000);
   logPrintf("\n");
 
+  rtcInit();
   gpioInit();
   buttonInit();
   i2cInit();

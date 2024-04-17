@@ -18,6 +18,7 @@ extern "C" {
 #include "eeprom.h"
 #include "spi.h"
 #include "spi_flash.h"
+#include "rtc.h"
 
 
 bool hwInit(void);
