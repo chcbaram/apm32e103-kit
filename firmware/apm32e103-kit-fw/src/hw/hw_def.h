@@ -12,6 +12,7 @@
 
 #define _USE_HW_GPIO
 #define _USE_HW_RTC
+#define _USE_HW_SD
 
 
 #define _USE_HW_LED
@@ -60,6 +61,8 @@
 #define _USE_CLI_HW_EEPROM          1
 #define _USE_CLI_HW_SPI_FLASH       1
 #define _USE_CLI_HW_RTC             1
+#define _USE_CLI_HW_SD              1
+
 
 typedef enum
 {

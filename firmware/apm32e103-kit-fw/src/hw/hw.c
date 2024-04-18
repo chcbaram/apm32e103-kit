@@ -34,7 +34,8 @@ bool hwInit(void)
   logPrintf("\r\n[ Firmware Begin... ]\r\n");
   logPrintf("Booting..Name \t\t: %s\r\n", _DEF_BOARD_NAME);
   logPrintf("Booting..Ver  \t\t: %s\r\n", _DEF_FIRMWATRE_VERSION);  
-  logPrintf("Booting..Clock\t\t: %d Mhz\r\n", (int)RCM_ReadSYSCLKFreq()/1000000);
+  logPrintf("Booting..SYS  \t\t: %d Mhz\r\n", (int)RCM_ReadSYSCLKFreq()/1000000);
+  logPrintf("Booting..HCLK \t\t: %d Mhz\r\n", (int)RCM_ReadHCLKFreq()/1000000);
   logPrintf("\n");
 
   rtcInit();
@@ -44,6 +45,7 @@ bool hwInit(void)
   eepromInit();
   spiInit();
   spiFlashInit();
+  sdInit();
 
   return true;
 }

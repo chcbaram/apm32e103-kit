@@ -19,6 +19,8 @@ extern "C" {
 #include "apm32e10x_bakpr.h"
 #include "apm32e10x_pmu.h"
 #include "apm32e10x_rtc.h"
+#include "apm32e10x_sdio.h"
+
 
 
 void logPrintf(const char *fmt, ...);

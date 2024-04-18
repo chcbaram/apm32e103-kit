@@ -1,6 +1,7 @@
 #include "ap.h"
 
 
+void sdMain(void);
 
 
 void apInit(void)
@@ -23,6 +24,22 @@ void apMain(void)
     }
 
     cliMain(); 
+    sdMain();
   }
 }
 
+void sdMain(void)
+{
+  sd_state_t sd_state;
+
+
+  sd_state = sdUpdate();
+  if (sd_state == SDCARD_CONNECTED)
+  {
+    logPrintf("\nSDCARD_CONNECTED\n");
+  }
+  if (sd_state == SDCARD_DISCONNECTED)
+  {
+    logPrintf("\nSDCARD_DISCONNECTED\n");
+  }
+}
