@@ -125,7 +125,7 @@ bool eepromRead(uint32_t addr, uint8_t *p_data, uint32_t length)
 
   for (i=0; i<length; i++)
   {
-    ret = eepromReadByte(addr, &p_data[i]);
+    ret = eepromReadByte(addr + i, &p_data[i]);
     if (ret != true)
     {
       break;
@@ -143,7 +143,7 @@ bool eepromWrite(uint32_t addr, uint8_t *p_data, uint32_t length)
 
   for (i=0; i<length; i++)
   {
-    ret = eepromWriteByte(addr, p_data[i]);
+    ret = eepromWriteByte(addr + i, p_data[i]);
     if (ret == false)
     {
       break;
