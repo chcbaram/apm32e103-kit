@@ -336,9 +336,9 @@ uint32_t uartGetBaud(uint8_t ch)
   if (ch >= UART_MAX_CH) return 0;
 
   #ifdef _USE_HW_USB
-  if (ch == HW_UART_CH_USB)
-    ret = cdcGetBaud();
-  else
+  // if (ch == HW_UART_CH_USB)
+  //   ret = cdcGetBaud();
+  // else
     ret = uart_tbl[ch].baud;
   #else
   ret = uart_tbl[ch].baud;

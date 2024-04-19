@@ -29,6 +29,9 @@ file(GLOB SRC_FILES CONFIGURE_DEPENDS
   src/lib/FatFs/src/*.c
   src/lib/FatFs/src/option/syscall.c
   src/lib/FatFs/src/option/unicode.c    
+
+  # USB
+  src/lib/geehy/APM32_USB_Library/Device/Core/Src/*.c  
 )
 
 # 하위폴더에 있는 파일까지 포함한다.
@@ -81,10 +84,16 @@ target_include_directories(${EXECUTABLE} PRIVATE
   # FatFs
   src/hw/driver/fatfs
   src/lib/FatFs/src  
+
+  # USB
+  src/hw/driver/usb
+  src/hw/driver/usb/usb_cdc
+  src/hw/driver/usb/usb_msc
+  src/lib/geehy/APM32_USB_Library/Device/Core/Inc
 )
 
 target_compile_definitions(${EXECUTABLE} PRIVATE
-  -DSTM32MP135Dxx
+  -DUSB_DEVICE
   )
 
 target_compile_options(${EXECUTABLE} PRIVATE

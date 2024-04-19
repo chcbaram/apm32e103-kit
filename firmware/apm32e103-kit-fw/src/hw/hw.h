@@ -23,7 +23,8 @@ extern "C" {
 #include "fatfs.h"
 #include "files.h"
 #include "i2s.h"
-
+#include "usb.h"
+#include "cdc.h"
 
 bool hwInit(void);
 

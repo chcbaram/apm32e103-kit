@@ -60,6 +60,10 @@
 #define      HW_MIXER_MAX_CH        4
 #define      HW_MIXER_MAX_BUF_LEN   (48*2*4*4) // 48Khz * Stereo * 4ms * 4
 
+#define _USE_HW_USB
+#define _USE_HW_CDC
+#define      HW_USE_CDC             1
+
 
 
 //-- USE CLI
@@ -74,7 +78,7 @@
 #define _USE_CLI_HW_SD              1
 #define _USE_CLI_HW_FATFS           1
 #define _USE_CLI_HW_I2S             1
-
+#define _USE_CLI_HW_USB             1
 typedef enum
 {
   SD_DETECT,
