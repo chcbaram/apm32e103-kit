@@ -37,6 +37,7 @@ static uint8_t q_tx_buf[2048];
 
 static bool is_opened = false;
 static bool is_rx_full = false;
+static bool is_tx_req = false;
 static uint8_t cdc_type = 0;
 
 
@@ -51,7 +52,6 @@ USBD_CDC_LineCodingTypeDef LineCoding =
 uint8_t CDC_Reset_Status = 0;
 uint8_t cdcTxBuffer[USBD_CDC_TX_BUF_LEN];
 uint8_t cdcRxBuffer[USBD_CDC_RX_BUF_LEN];
-uint8_t cdcRxBufferTotal[USBD_CDC_RX_BUF_LEN];
 
 
 extern USBD_INFO_T gUsbDeviceFS;
@@ -201,6 +201,8 @@ USBD_STA_T USBD_FS_CDC_ItfSendEnd(uint8_t epNum, uint8_t *buffer, uint32_t *leng
 {
   USBD_STA_T usbStatus = USBD_OK;
 
+  is_tx_req = false;
+
   return usbStatus;
 }
 
@@ -343,5 +345,60 @@ uint8_t cdcIfGetType(void)
   return cdc_type;
 }
 
+uint8_t CDC_SoF_ISR(USBD_INFO_T *usbInfo)
+{
 
+  //-- RX
+  //
+  if (is_rx_full)
+  {
+    uint32_t buf_len;
+
+    buf_len = (q_rx.len - qbufferAvailable(&q_rx)) - 1;
+
+    if (buf_len >= CDC_DATA_FS_MAX_PACKET_SIZE)
+    {
+      USBD_CDC_ConfigRxBuffer(usbInfo, &cdcRxBuffer[0]);
+      USBD_CDC_RxPacket(usbInfo);
+      is_rx_full = false;
+    }
+  }
+
+
+  //-- TX
+  //
+  uint32_t tx_len;
+  tx_len = qbufferAvailable(&q_tx);
+  if (tx_len > USBD_CDC_TX_BUF_LEN)
+  {
+    tx_len = USBD_CDC_TX_BUF_LEN;
+  }
+
+  if (tx_len%CDC_DATA_FS_MAX_PACKET_SIZE == 0)
+  {
+    if (tx_len > 0)
+    {
+      tx_len = tx_len - 1;
+    }
+  }
+
+  if (tx_len > 0)
+  {
+    USBD_CDC_INFO_T *usbDevCDC = (USBD_CDC_INFO_T *)usbInfo->devClass[usbInfo->classID]->classData;
+
+    if (usbDevCDC != NULL)
+    {
+      if (usbDevCDC->cdcTx.state == USBD_CDC_XFER_IDLE)
+      {
+        is_tx_req = true;
+        qbufferRead(&q_tx, cdcTxBuffer, tx_len);
+
+        USBD_CDC_ConfigTxBuffer(usbInfo, cdcTxBuffer, tx_len);
+        USBD_CDC_TxPacket(usbInfo);
+      }
+    }
+  }
+
+  return 0;
+}
 

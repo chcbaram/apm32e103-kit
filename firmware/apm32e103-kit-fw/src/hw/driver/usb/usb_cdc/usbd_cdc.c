@@ -215,6 +215,8 @@ static USBD_STA_T USBD_CDC_ClassDeInitHandler(USBD_INFO_T *usbInfo, uint8_t cfgI
   return usbStatus;
 }
 
+extern uint8_t CDC_SoF_ISR(USBD_INFO_T *usbInfo);
+
 /*!
  * @brief       USB device CDC SOF handler
  *
@@ -226,6 +228,8 @@ static USBD_STA_T USBD_CDC_SOFHandler(USBD_INFO_T *usbInfo)
 {
   USBD_STA_T usbStatus = USBD_BUSY;
 
+  CDC_SoF_ISR(usbInfo);
+  
   return usbStatus;
 }
 

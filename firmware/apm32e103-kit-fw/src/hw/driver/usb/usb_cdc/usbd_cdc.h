@@ -51,8 +51,8 @@
 #define USBD_CDC_DATA_IN_EP_ADDR                0x81
 #define USBD_CDC_DATA_OUT_EP_ADDR               0x01
 
-#define USBD_CDC_FS_INTERVAL                    16
-#define USBD_CDC_HS_INTERVAL                    16
+#define USBD_CDC_FS_INTERVAL                    16 
+#define USBD_CDC_HS_INTERVAL                    16 
 
 /**@} end of group USBD_CDC_Macros*/
 

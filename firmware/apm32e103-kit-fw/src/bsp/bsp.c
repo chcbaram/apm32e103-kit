@@ -25,6 +25,18 @@ bool bspInit(void)
   prioritygroup = NVIC_GetPriorityGrouping();
   NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(prioritygroup, 0, 0));
 
+
+  RCM_EnableAPB2PeriphClock(RCM_APB2_PERIPH_GPIOA);
+
+  GPIO_Config_T   GPIO_InitStructure;
+
+  GPIO_InitStructure.mode  = GPIO_MODE_OUT_OD;
+  GPIO_InitStructure.speed = GPIO_SPEED_50MHz;
+  GPIO_InitStructure.pin   = GPIO_PIN_12;
+  GPIO_Config(GPIOA, &GPIO_InitStructure);
+
+  GPIO_WriteBitValue(GPIOA, GPIO_PIN_12, _DEF_LOW);
+
   return true;
 }
 

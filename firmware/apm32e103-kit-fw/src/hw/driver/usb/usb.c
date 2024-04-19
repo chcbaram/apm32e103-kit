@@ -122,27 +122,27 @@ void usbDevHandler(USBD_INFO_T *usbInfo, uint8_t userStatus)
   switch (userStatus)
   {
     case USBD_USER_RESET:
-      logPrintf("USBD_USER_RESET\n");
+      // logPrintf("USBD_USER_RESET\n");
       break;
 
     case USBD_USER_RESUME:
-      logPrintf("USBD_USER_RESUME\n");
+      // logPrintf("USBD_USER_RESUME\n");
       break;
 
     case USBD_USER_SUSPEND:
-      logPrintf("USBD_USER_SUSPEND\n");
+      // logPrintf("USBD_USER_SUSPEND\n");
       break;
 
     case USBD_USER_CONNECT:
-      logPrintf("USBD_USER_CONNECT\n");
+      // logPrintf("USBD_USER_CONNECT\n");
       break;
 
     case USBD_USER_DISCONNECT:
-      logPrintf("USBD_USER_DISCONNECT\n");
+      // logPrintf("USBD_USER_DISCONNECT\n");
       break;
 
     case USBD_USER_ERROR:
-      logPrintf("USBD_USER_ERROR\n");
+      // logPrintf("USBD_USER_ERROR\n");
       break;
 
     default:
@@ -159,7 +159,6 @@ void USBD2_LP_CAN2_RX0_IRQHandler(void)
 #endif 
 {
     USBD_IsrHandler(&usbDeviceHandler);
-    logPrintf("USB ISR\n");
 }
 
 #if USB_SELECT == USB1

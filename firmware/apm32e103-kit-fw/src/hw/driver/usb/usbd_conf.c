@@ -22,7 +22,6 @@ void USBD_HardwareInit(USBD_INFO_T *usbInfo)
   RCM_EnableAPB1PeriphClock(RCM_APB1_PERIPH_USB);
 
   /* Configure USB GPIO */
-  RCM_EnableAPB2PeriphClock(RCM_APB2_PERIPH_AFIO);
   RCM_EnableAPB2PeriphClock(RCM_APB2_PERIPH_GPIOA);
 
   /* Link structure */
@@ -44,7 +43,7 @@ void USBD_HardwareInit(USBD_INFO_T *usbInfo)
   gpioConfig.speed = GPIO_SPEED_50MHz;
   gpioConfig.pin   = GPIO_PIN_11 | GPIO_PIN_12;
   GPIO_Config(GPIOA, &gpioConfig);
-
+  
   /* NVIC */
   NVIC_ConfigPriorityGroup(NVIC_PRIORITY_GROUP_4);
 
@@ -163,6 +162,8 @@ void USBD_SuspendCallback(USBD_HANDLE_T *usbdh)
     /* Set SLEEPDEEP bit and SLEEPONEXIT SCR */
     SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
   }
+
+  is_connected = false;
 }
 
 /*!
@@ -410,6 +411,8 @@ USBD_STA_T USBD_SetDevAddressCallback(USBD_INFO_T *usbInfo, uint8_t address)
 
   USBD_SetDevAddress(usbInfo->dataPoint, address);
 
+  is_connected = true;
+
   return usbStatus;
 }
 
@@ -462,7 +465,6 @@ void USBD_IsoOutInCompleteCallback(USBD_HANDLE_T *usbdh, uint8_t epNum)
  */
 void USBD_ConnectCallback(USBD_HANDLE_T *usbdh)
 {
-  is_connected = true;
   USBD_Connect(usbdh->dataPoint);
 }
 
@@ -475,7 +477,6 @@ void USBD_ConnectCallback(USBD_HANDLE_T *usbdh)
  */
 void USBD_DisconnectCallback(USBD_HANDLE_T *usbdh)
 {
-  is_connected = false;
   USBD_Disconnect(usbdh->dataPoint);
 }
 
