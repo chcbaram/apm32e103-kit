@@ -65,6 +65,11 @@
 #define _USE_HW_CDC
 #define      HW_USE_CDC             1
 
+#define _USE_HW_CAN
+#define      HW_CAN_FD              0
+#define      HW_CAN_MAX_CH          1
+#define      HW_CAN_MSG_RX_BUF_MAX  32
+
 
 
 //-- USE CLI
@@ -80,6 +85,10 @@
 #define _USE_CLI_HW_FATFS           1
 #define _USE_CLI_HW_I2S             1
 #define _USE_CLI_HW_USB             1
+#define _USE_CLI_HW_CAN             1
+
+
+
 typedef enum
 {
   SD_DETECT,

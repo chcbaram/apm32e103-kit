@@ -40,6 +40,7 @@ extern "C" {
 #include "apm32e10x_sdio.h"
 #include "apm32e10x_usb.h"
 #include "apm32e10x_usb_device.h"
+#include "apm32e10x_can.h"
 
 
 

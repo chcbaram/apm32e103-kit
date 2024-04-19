@@ -53,5 +53,7 @@ bool hwInit(void)
   usbBegin(USB_CDC_MODE);
   cdcInit();
 
+  canInit();
+
   return true;
 }

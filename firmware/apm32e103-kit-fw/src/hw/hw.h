@@ -25,6 +25,8 @@ extern "C" {
 #include "i2s.h"
 #include "usb.h"
 #include "cdc.h"
+#include "can.h"
+
 
 bool hwInit(void);
 

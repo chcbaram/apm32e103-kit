@@ -70,6 +70,7 @@ typedef enum
 typedef enum
 {
   CAN_ID_MASK,
+  CAN_ID_LIST,
   CAN_ID_RANGE
 } CanFilterType_t;
 
@@ -81,6 +82,7 @@ typedef enum
   CAN_ERR_BUS_OFF   = 0x00000004,
   CAN_ERR_BUS_FAULT = 0x00000008,
   CAN_ERR_ETC       = 0x00000010,
+  CAN_ERR_MSG       = 0x00000020,
 } CanErr_t;
 
 typedef enum
@@ -92,6 +94,7 @@ typedef enum
   CAN_EVT_ERR_BUS_OFF,
   CAN_EVT_ERR_BUS_FAULT,
   CAN_EVT_ERR_ETC,
+  CAN_EVT_ERR_MSG,
 } CanEvent_t;
 
 typedef struct
@@ -106,8 +109,13 @@ typedef struct
 {
   uint32_t id;
   uint16_t length;
+  #if HW_CAN_FD == 1
   uint8_t  data[64];
-
+  #else
+  uint8_t  data[8];
+  #endif
+  uint32_t timestamp;
+  
   CanDlc_t      dlc;
   CanIdType_t   id_type;
   CanFrame_t    frame;
@@ -122,9 +130,8 @@ bool     canOpen(uint8_t ch, CanMode_t mode, CanFrame_t frame, CanBaud_t baud, C
 bool     canIsOpen(uint8_t ch);
 void     canClose(uint8_t ch);
 bool     canGetInfo(uint8_t ch, can_info_t *p_info);
-bool     canSetFilterType(CanFilterType_t filter_type);
-bool     canGetFilterType(CanFilterType_t *p_filter_type);
-bool     canConfigFilter(uint8_t ch, uint8_t index, CanIdType_t id_type, uint32_t id, uint32_t id_mask);
+bool     canConfigFilter(uint8_t ch, uint8_t index, CanIdType_t id_type, CanFilterType_t ft_type, uint32_t id, uint32_t id_mask);
+
 CanDlc_t canGetDlc(uint8_t length);
 uint8_t  canGetLen(CanDlc_t dlc);
 
@@ -142,8 +149,9 @@ uint32_t canGetState(uint8_t ch);
 
 void     canErrClear(uint8_t ch);
 void     canErrPrint(uint8_t ch);
+void     canInfoPrint(uint8_t ch);
 bool     canUpdate(void);
-
+bool     canIsRecoveryFail(uint8_t ch);
 void     canAttachRxInterrupt(uint8_t ch, bool (*handler)(uint8_t ch, CanEvent_t evt, can_msg_t *arg));
 void     canDetachRxInterrupt(uint8_t ch);
 
