@@ -18,7 +18,7 @@ void apInit(void)
     delay(10);
   }  
   delay(500);
-  // lcdClear(black);
+  lcdClear(black);
 }
 
 extern volatile uint32_t i2s_cnt;
