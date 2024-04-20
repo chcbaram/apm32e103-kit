@@ -19,6 +19,14 @@ void apMain(void)
   pre_time = millis();
   while(1)
   {
+    static bool color_enable = false;
+    if (buttonGetPressed(_DEF_BUTTON1))
+    {
+      delay(50);
+      while(buttonGetPressed(_DEF_BUTTON1));
+      color_enable ^= 1;
+    }
+
     if (millis()-pre_time >= 500)
     {
       pre_time = millis();
@@ -32,10 +40,17 @@ void apMain(void)
                            WS2812_COLOR_OFF};
 
       static uint8_t color_idx = 0;
-
-      ws2812SetColor(0, color[color_idx]);
-      ws2812Refresh();
-      color_idx = (color_idx + 1) % 6;
+      if (color_enable)
+      {
+        ws2812SetColor(0, color[color_idx]);
+        ws2812Refresh();
+        color_idx = (color_idx + 1) % 6;
+      }
+      else
+      {
+        ws2812SetColor(0, 0);
+        ws2812Refresh();
+      }      
     }
 
     cliMain(); 
