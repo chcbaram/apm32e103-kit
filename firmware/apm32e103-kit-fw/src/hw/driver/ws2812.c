@@ -3,7 +3,7 @@
 
 
 #ifdef _USE_HW_WS2812
-
+#include "cli.h"
 
 #define BIT_PERIOD      (78)  // 1300ns, 60Mhz
 #define BIT_HIGH        (42)  // 700ns
@@ -24,6 +24,9 @@ static uint8_t bit_buf[BIT_ZERO + 24*HW_WS2812_MAX_CH];
 
 ws2812_t ws2812;
 
+#if CLI_USE(HW_WS2812)
+static void cliCmd(cli_args_t *args);
+#endif
 static bool ws2812InitHw(void);
 
 
@@ -74,6 +77,9 @@ bool ws2812Init(void)
 
   ws2812Refresh();
 
+#if CLI_USE(HW_WS2812)
+  cliAdd("ws2812", cliCmd);
+#endif
   return true;
 }
 
@@ -185,5 +191,47 @@ void ws2812SetColor(uint32_t ch, uint32_t color)
   memcpy(&bit_buf[offset + ch*24 + 8*2], b_bit, 8*1);
 }
 
+#if CLI_USE(HW_LED)
+void cliCmd(cli_args_t *args)
+{
+  bool ret = false;
+
+
+  if (args->argc == 1 && args->isStr(0, "info"))
+  {
+    cliPrintf("ws2812 led cnt : %d\n", WS2812_MAX_CH);
+    ret = true;
+  }
+
+  if (args->argc == 5 && args->isStr(0, "color"))
+  {
+    uint8_t  ch;
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+
+    ch    = (uint8_t)args->getData(1);
+    red   = (uint8_t)args->getData(2);
+    green = (uint8_t)args->getData(3);
+    blue  = (uint8_t)args->getData(4);
+
+    ws2812SetColor(ch, WS2812_COLOR(red, green, blue));
+    ws2812Refresh();
+
+    while(cliKeepLoop())
+    {
+    }
+    ws2812SetColor(0, 0);
+    ws2812Refresh();
+    ret = true;
+  }
+
+  if (ret == false)
+  {
+    cliPrintf("ws2812 info\n");
+    cliPrintf("ws2812 color ch r g b\n");
+  }
+}
+#endif
 
 #endif

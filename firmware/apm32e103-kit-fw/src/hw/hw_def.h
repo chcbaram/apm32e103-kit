@@ -89,7 +89,7 @@
 #define _USE_CLI_HW_I2S             1
 #define _USE_CLI_HW_USB             1
 #define _USE_CLI_HW_CAN             1
-
+#define _USE_CLI_HW_WS2812          1
 
 
 typedef enum
