@@ -8,7 +8,7 @@
 #define BIT_PERIOD      (78)  // 1300ns, 60Mhz
 #define BIT_HIGH        (42)  // 700ns
 #define BIT_LOW         (21)  // 350ns
-#define BIT_ZERO        (150)
+#define BIT_ZERO        (50)
 
 bool is_init = false;
 
@@ -184,7 +184,7 @@ void ws2812SetColor(uint32_t ch, uint32_t color)
     blue <<= 1;
   }
 
-  offset = 50;
+  offset = BIT_ZERO;
 
   memcpy(&bit_buf[offset + ch*24 + 8*0], g_bit, 8*1);
   memcpy(&bit_buf[offset + ch*24 + 8*1], r_bit, 8*1);
