@@ -49,12 +49,13 @@ __attribute__((section(".non_cache")))
 static uart_tbl_t uart_tbl[UART_MAX_CH];
 
 static USART_Config_T uart1_cfg;
-
+static USART_Config_T uart2_cfg;
 
 const static uart_hw_t uart_hw_tbl[UART_MAX_CH] = 
   {
     {"USART1 SWD   ", USART1, &uart1_cfg, DMA1_Channel5},
     {"USB CDC      ", NULL  , NULL,       NULL         },
+    {"USART2 EXT   ", USART2, &uart2_cfg, DMA1_Channel6},
   };
 
 
@@ -105,6 +106,7 @@ bool uartOpen(uint8_t ch, uint32_t baud)
   switch(ch)
   {
     case _DEF_UART1:
+    case _DEF_UART3:
       uart_tbl[ch].baud = baud;
 
       uart_tbl[ch].p_hw = (uart_hw_t *)&uart_hw_tbl[ch];
@@ -202,6 +204,45 @@ bool uartInitHw(uint8_t ch)
       DMA_Enable(uart_tbl[ch].p_hw->p_hdma_rx);
       break;
 
+    case _DEF_UART3:
+      RCM_EnableAPB2PeriphClock(RCM_APB2_PERIPH_GPIOA);
+      RCM_EnableAPB1PeriphClock(RCM_APB1_PERIPH_USART2);
+
+      /* Configure USART Tx as alternate function push-pull */
+      GPIO_configStruct.mode  = GPIO_MODE_AF_PP;
+      GPIO_configStruct.pin   = GPIO_PIN_2;
+      GPIO_configStruct.speed = GPIO_SPEED_50MHz;
+      GPIO_Config(GPIOA, &GPIO_configStruct);
+
+      /* Configure USART Rx as input floating */
+      GPIO_configStruct.mode = GPIO_MODE_IN_FLOATING;
+      GPIO_configStruct.pin  = GPIO_PIN_3;
+      GPIO_Config(GPIOA, &GPIO_configStruct);
+
+
+      /* Enable DMA Clock */
+      RCM_EnableAHBPeriphClock(RCM_AHB_PERIPH_DMA1);
+
+      /* DMA config */
+      dmaConfig.peripheralBaseAddr = (uint32_t)&uart_tbl[ch].p_hw->p_uart->DATA;
+      dmaConfig.memoryBaseAddr     = (uint32_t)uart_tbl[ch].rx_buf;
+      dmaConfig.dir                = DMA_DIR_PERIPHERAL_SRC;
+      dmaConfig.bufferSize         = UART_RX_BUF_LENGTH;
+      dmaConfig.peripheralInc      = DMA_PERIPHERAL_INC_DISABLE;
+      dmaConfig.memoryInc          = DMA_MEMORY_INC_ENABLE;
+      dmaConfig.peripheralDataSize = DMA_PERIPHERAL_DATA_SIZE_BYTE;
+      dmaConfig.memoryDataSize     = DMA_MEMORY_DATA_SIZE_BYTE;
+      dmaConfig.loopMode           = DMA_MODE_CIRCULAR;
+      dmaConfig.priority           = DMA_PRIORITY_MEDIUM;
+      dmaConfig.M2M                = DMA_M2MEN_DISABLE;
+
+      /* Enable DMA channel */
+      DMA_Config(uart_tbl[ch].p_hw->p_hdma_rx, &dmaConfig);
+
+      /* Enable DMA */
+      DMA_Enable(uart_tbl[ch].p_hw->p_hdma_rx);
+      break;
+
     default:
       ret = false;
       break;
@@ -219,6 +260,7 @@ uint32_t uartAvailable(uint8_t ch)
   switch(ch)
   {
     case _DEF_UART1:
+    case _DEF_UART3:
       uart_tbl[ch].qbuffer.in = uart_tbl[ch].qbuffer.len - uart_tbl[ch].p_hw->p_hdma_rx->CHNDATA_B.NDATA;
       ret = qbufferAvailable(&uart_tbl[ch].qbuffer);      
       break;
@@ -259,6 +301,7 @@ uint8_t uartRead(uint8_t ch)
   switch(ch)
   {
     case _DEF_UART1:
+    case _DEF_UART3:
       qbufferRead(&uart_tbl[ch].qbuffer, &ret, 1);
       break;
 
@@ -284,10 +327,11 @@ uint32_t uartWrite(uint8_t ch, uint8_t *p_data, uint32_t length)
   switch(ch)
   {
     case _DEF_UART1:
+    case _DEF_UART3:
       index = 0;
       while(millis()-pre_time < 100)
       {
-        if (USART_ReadStatusFlag(USART1, USART_FLAG_TXBE) == SET)
+        if (USART_ReadStatusFlag(uart_tbl[ch].p_hw->p_uart, USART_FLAG_TXBE) == SET)
         {
           USART_TxData(uart_tbl[ch].p_hw->p_uart, p_data[index]);
           index++;
