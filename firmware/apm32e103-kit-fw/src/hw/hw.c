@@ -23,6 +23,7 @@ bool hwInit(void)
 
   cliInit();
   logInit();
+  swtimerInit();
   ledInit();
   uartInit();
   for (int i=0; i<HW_UART_MAX_CH; i++)
@@ -62,6 +63,12 @@ bool hwInit(void)
   canInit();
   ws2812Init();
   lcdInit();
+  lcdSetFps(20);
+  
+  eventInit();
+  wiznetInit();
+  wiznetDHCP();
+  wiznetSNTP();
 
   return true;
 }

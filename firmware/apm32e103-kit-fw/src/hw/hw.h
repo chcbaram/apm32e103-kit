@@ -28,6 +28,9 @@ extern "C" {
 #include "can.h"
 #include "ws2812.h"
 #include "lcd.h"
+#include "swtimer.h"
+#include "event.h"
+#include "wiznet/wiznet.h"
 
 
 bool hwInit(void);

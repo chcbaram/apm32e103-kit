@@ -1,7 +1,13 @@
 #include "ap.h"
 
 
-void sdMain(void);
+void updateLED(void);
+void updateSD(void);
+void updateWiznet(void);
+void updateLCD(void);
+
+
+
 
 
 void apInit(void)
@@ -21,55 +27,32 @@ void apInit(void)
   lcdClear(black);
 }
 
-extern volatile uint32_t i2s_cnt;
 
 void apMain(void)
 {
-  uint32_t pre_time;
-
-  pre_time = millis();
   while(1)
   {
-    static bool color_enable = false;
-    if (buttonGetPressed(_DEF_BUTTON1))
-    {
-      delay(50);
-      while(buttonGetPressed(_DEF_BUTTON1));
-      color_enable ^= 1;
-    }
+    cliMain();
 
-    if (millis()-pre_time >= 500)
-    {
-      pre_time = millis();
-      ledToggle(_DEF_LED1);
-
-      uint32_t color[6] = {WS2812_COLOR_RED,
-                           WS2812_COLOR_OFF,
-                           WS2812_COLOR_GREEN,
-                           WS2812_COLOR_OFF,
-                           WS2812_COLOR_BLUE,
-                           WS2812_COLOR_OFF};
-
-      static uint8_t color_idx = 0;
-      if (color_enable)
-      {
-        ws2812SetColor(0, color[color_idx]);
-        ws2812Refresh();
-        color_idx = (color_idx + 1) % 6;
-      }
-      else
-      {
-        ws2812SetColor(0, 0);
-        ws2812Refresh();
-      }      
-    }
-
-    cliMain(); 
-    sdMain();
+    updateLED();
+    updateLCD();
+    updateWiznet();
   }
 }
 
-void sdMain(void)
+void updateLED(void)
+{
+  static uint32_t pre_time = 0;
+  
+  
+  if (millis() - pre_time >= 500)
+  {
+    pre_time = millis();
+    ledToggle(_DEF_LED1);
+  }
+}
+
+void updateSD(void)
 {
   sd_state_t sd_state;
 
@@ -83,5 +66,69 @@ void sdMain(void)
   if (sd_state == SDCARD_DISCONNECTED)
   {
     logPrintf("\nSDCARD_DISCONNECTED\n");
+  }
+}
+
+void updateWiznet(void)
+{
+  eventUpdate();
+  wiznetUpdate();  
+}
+
+void updateLCD(void)
+{
+
+  if (lcdDrawAvailable())
+  {
+    lcdClearBuffer(black);
+
+    if (wiznetIsLink() == false)
+    {
+      lcdPrintf(0, 8, white, "Not Connected");        
+    }
+    else 
+    {
+      if (wiznetIsGetIP() == true)
+      {
+        if (buttonGetPressed(_DEF_BUTTON1))
+        {
+           wiznet_info_t net_info;
+
+          wiznetGetInfo(&net_info);
+
+          lcdPrintf(0,  0, white,
+                    "IP %d.%d.%d.%d", 
+                    net_info.ip[0], 
+                    net_info.ip[1],
+                    net_info.ip[2],
+                    net_info.ip[3]);
+          lcdPrintf(0, 16, white,
+                    "DHCP : %s\n", wiznetIsGetIP() ? "True":"False");
+        }
+        else
+        {
+          rtc_time_t rtc_time;
+          rtc_date_t rtc_date;
+          const char *week_str[] = {"일", "월", "화", "수", "목", "금", "토"};
+
+          rtcGetTime(&rtc_time);
+          rtcGetDate(&rtc_date);
+
+          lcdPrintf(0, 0, white,
+                    "%02d-%02d-%02d (%s)",
+                    rtc_date.year, rtc_date.month, rtc_date.day, week_str[rtc_date.week]);
+
+          lcdPrintf(0, 16, white,
+                    "%02d:%02d:%02d",
+                    rtc_time.hours, rtc_time.minutes, rtc_time.seconds);
+        }
+      }
+      else
+      {
+        lcdPrintf(0, 8, white, "Getting_IP..");        
+      }
+    }
+
+    lcdRequestDraw();
   }
 }

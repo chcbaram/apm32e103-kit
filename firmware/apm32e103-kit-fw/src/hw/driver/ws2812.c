@@ -203,6 +203,29 @@ void cliCmd(cli_args_t *args)
     ret = true;
   }
 
+  if (args->argc == 1 && args->isStr(0, "test"))
+  {
+    uint32_t color[6] = {WS2812_COLOR_RED,
+                         WS2812_COLOR_OFF,
+                         WS2812_COLOR_GREEN,
+                         WS2812_COLOR_OFF,
+                         WS2812_COLOR_BLUE,
+                         WS2812_COLOR_OFF};
+
+    uint8_t color_idx = 0;
+
+    while(cliKeepLoop())
+    {
+      ws2812SetColor(0, color[color_idx]);
+      ws2812Refresh();
+      color_idx = (color_idx + 1) % 6;
+
+      delay(200);
+    }
+    ret = true;
+  }
+
+
   if (args->argc == 5 && args->isStr(0, "color"))
   {
     uint8_t  ch;
@@ -229,6 +252,7 @@ void cliCmd(cli_args_t *args)
   if (ret == false)
   {
     cliPrintf("ws2812 info\n");
+    cliPrintf("ws2812 test\n");
     cliPrintf("ws2812 color ch r g b\n");
   }
 }

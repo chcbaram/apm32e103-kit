@@ -4,11 +4,13 @@
 
 volatile static uint32_t systick_ms = 0;
 
+extern void swtimerISR(void);
 
 
 void SysTick_Handler(void)
 {
   systick_ms++;
+  swtimerISR();
 }
 
 

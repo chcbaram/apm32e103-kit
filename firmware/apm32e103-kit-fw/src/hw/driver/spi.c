@@ -32,10 +32,12 @@ typedef struct
 
 static spi_t spi_tbl[SPI_MAX_CH];
 static SPI_Config_T spi1_cfg;
+static SPI_Config_T spi2_cfg;
 
 const static spi_hw_t spi_hw_tbl[SPI_MAX_CH] = 
   {
     {SPI1, &spi1_cfg, DMA1_Channel3, DMA1_Channel2},
+    {SPI2, &spi2_cfg, NULL,          NULL         },
   };
 
 static bool spiInitHw(uint8_t ch);
@@ -71,6 +73,7 @@ bool spiBegin(uint8_t ch)
   switch(ch)
   {
     case _DEF_SPI1:
+    case _DEF_SPI2:
 
       SPI_ConfigStructInit(p_spi->p_hw->p_cfg);
 
@@ -122,6 +125,24 @@ bool spiInitHw(uint8_t ch)
       gpioConfig.mode  = GPIO_MODE_AF_PP;
       gpioConfig.speed = GPIO_SPEED_50MHz;
       GPIO_Config(GPIOA, &gpioConfig);
+      break;
+
+    case _DEF_SPI2:
+      /* Enable related Clock */
+      RCM_EnableAPB1PeriphClock(RCM_APB1_PERIPH_SPI2);
+      RCM_EnableAPB2PeriphClock(RCM_APB2_PERIPH_GPIOB);
+
+      /* config PIN_14  MISO*/
+      gpioConfig.pin   = GPIO_PIN_14;
+      gpioConfig.mode  = GPIO_MODE_IN_PU;
+      gpioConfig.speed = GPIO_SPEED_50MHz;
+      GPIO_Config(GPIOB, &gpioConfig);
+
+      /* config PIN_14->SCK , PIN_15->MOSI */
+      gpioConfig.pin   = GPIO_PIN_13 | GPIO_PIN_15;
+      gpioConfig.mode  = GPIO_MODE_AF_PP;
+      gpioConfig.speed = GPIO_SPEED_50MHz;
+      GPIO_Config(GPIOB, &gpioConfig);
       break;
 
     default:

@@ -51,7 +51,7 @@
 #define      HW_EEPROM_MAX_SIZE     (8*1024)
 
 #define _USE_HW_SPI
-#define      HW_SPI_MAX_CH          1
+#define      HW_SPI_MAX_CH          2
 
 #define _USE_HW_SPI_FLASH
 #define      HW_SPI_FLASH_ADDR      0x91000000
@@ -80,7 +80,17 @@
 #define      HW_LCD_WIDTH           128
 #define      HW_LCD_HEIGHT          32
 
+#define _USE_HW_SWTIMER
+#define      HW_SWTIMER_MAX_CH      8
 
+#define _USE_HW_WIZNET
+#define      HW_WIZNET_SOCKET_CMD   0
+#define      HW_WIZNET_SOCKET_DHCP  1
+#define      HW_WIZNET_SOCKET_SNTP  2
+
+#define _USE_HW_EVENT
+#define      HW_EVENT_Q_MAX         8
+#define      HW_EVENT_NODE_MAX      16  
 
 //-- USE CLI
 //
@@ -97,6 +107,8 @@
 #define _USE_CLI_HW_USB             1
 #define _USE_CLI_HW_CAN             1
 #define _USE_CLI_HW_WS2812          1
+#define _USE_CLI_HW_EVENT           1
+#define _USE_CLI_HW_WIZNET          1
 
 
 typedef enum
@@ -104,6 +116,9 @@ typedef enum
   SD_DETECT,
   SPI_CS,
   I2S_MUTE,
+  SPI2_CS,
+  W5500_RST,
+  W5500_INT,
   GPIO_PIN_MAX,  
 } GpioPinName_t;
 

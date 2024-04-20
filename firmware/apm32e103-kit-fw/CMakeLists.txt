@@ -75,6 +75,7 @@ target_include_directories(${EXECUTABLE} PRIVATE
   src/common/core
   src/common/hw/include 
   src/hw
+  src/hw/driver
   src/lib
 
   src/lib/geehy/CMSIS/Include
