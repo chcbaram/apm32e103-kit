@@ -31,7 +31,7 @@ extern "C" {
 #include "swtimer.h"
 #include "event.h"
 #include "wiznet/wiznet.h"
-
+#include "imu.h"
 
 bool hwInit(void);
 

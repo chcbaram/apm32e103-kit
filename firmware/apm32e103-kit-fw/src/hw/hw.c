@@ -70,5 +70,7 @@ bool hwInit(void)
   wiznetDHCP();
   wiznetSNTP();
 
+  imuInit();
+
   return true;
 }

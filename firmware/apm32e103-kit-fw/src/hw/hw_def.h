@@ -16,6 +16,8 @@
 #define _USE_HW_FATFS
 #define _USE_HW_FILES
 #define _USE_HW_BUZZER
+#define _USE_HW_ICM42670
+#define _USE_HW_IMU
 
 
 #define _USE_HW_LED
@@ -46,6 +48,7 @@
 #define      HW_I2C_MAX_CH          2
 #define      HW_I2C_CH_EEPROM       _DEF_I2C1
 #define      HW_I2C_CH_OLED         _DEF_I2C2
+#define      HW_I2C_CH_IMU          _DEF_I2C1
 
 #define _USE_HW_EEPROM
 #define      HW_EEPROM_MAX_SIZE     (8*1024)
@@ -92,6 +95,7 @@
 #define      HW_EVENT_Q_MAX         8
 #define      HW_EVENT_NODE_MAX      16  
 
+
 //-- USE CLI
 //
 #define _USE_CLI_HW_LED             1
@@ -109,6 +113,8 @@
 #define _USE_CLI_HW_WS2812          1
 #define _USE_CLI_HW_EVENT           1
 #define _USE_CLI_HW_WIZNET          1
+#define _USE_CLI_HW_ICM42670        1
+#define _USE_CLI_HW_IMU             1
 
 
 typedef enum

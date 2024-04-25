@@ -54,6 +54,24 @@ uint32_t millis(void)
   return systick_ms;
 }
 
+uint32_t micros(void)
+{
+  uint32_t       m0  = millis();
+  __IO uint32_t  u0  = SysTick->VAL;
+  uint32_t       m1  = millis();
+  __IO uint32_t  u1  = SysTick->VAL;
+  const uint32_t tms = SysTick->LOAD + 1;
+
+  if (m1 != m0)
+  {
+    return (m1 * 1000 + ((tms - u1) * 1000) / tms);
+  }
+  else
+  {
+    return (m0 * 1000 + ((tms - u0) * 1000) / tms);
+  }
+}
+
 void assert_failed(uint8_t* file, uint32_t line)
 {
   char *name_buf;
