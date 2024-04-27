@@ -36,7 +36,7 @@ void apMain(void)
 
     updateLED();
     updateLCD();
-    // updateWiznet();
+    updateWiznet();
   }
 }
 
@@ -77,58 +77,97 @@ void updateWiznet(void)
 
 void updateLCD(void)
 {
+  int16_t        x_offset = 10;
+  static uint8_t menu     = 0;
+  uint8_t        menu_max = 3;
+
+
+
+  if (buttonGetPressed(_DEF_BUTTON1))
+  {
+    delay(10);
+    while(buttonGetPressed(_DEF_BUTTON1));
+    
+    menu = (menu + 1) % menu_max;
+  }
+
 
   if (lcdDrawAvailable())
   {
     lcdClearBuffer(black);
 
-    if (wiznetIsLink() == false)
+    lcdDrawRect(0, 0, 4, 32, white);
+    for (int i=0; i<menu_max; i++)
     {
-      lcdPrintf(0, 8, white, "Not Connected");        
+      if (i == menu)
+        lcdDrawFillRect(0, i*(32/menu_max), 4, (32/menu_max), white);
     }
-    else 
+
+
+    if (menu == 0)
     {
-      if (wiznetIsGetIP() == true)
+      if (wiznetIsLink() == true)
       {
-        if (buttonGetPressed(_DEF_BUTTON1))
+        if (wiznetIsGetIP() == true)
         {
-           wiznet_info_t net_info;
+          wiznet_info_t net_info;
 
           wiznetGetInfo(&net_info);
 
-          lcdPrintf(0,  0, white,
+          lcdPrintf(x_offset,  0, white,
                     "IP %d.%d.%d.%d", 
                     net_info.ip[0], 
                     net_info.ip[1],
                     net_info.ip[2],
                     net_info.ip[3]);
-          lcdPrintf(0, 16, white,
-                    "DHCP : %s\n", wiznetIsGetIP() ? "True":"False");
+          lcdPrintf(x_offset, 16, white,
+                    "DHCP : %s\n", wiznetIsGetIP() ? "True":"False");          
         }
         else
         {
-          rtc_time_t rtc_time;
-          rtc_date_t rtc_date;
-          const char *week_str[] = {"일", "월", "화", "수", "목", "금", "토"};
-
-          rtcGetTime(&rtc_time);
-          rtcGetDate(&rtc_date);
-
-          lcdPrintf(0, 0, white,
-                    "%02d-%02d-%02d (%s)",
-                    rtc_date.year, rtc_date.month, rtc_date.day, week_str[rtc_date.week]);
-
-          lcdPrintf(0, 16, white,
-                    "%02d:%02d:%02d",
-                    rtc_time.hours, rtc_time.minutes, rtc_time.seconds);
-        }
+          lcdPrintf(x_offset, 8, white, "Getting_IP..");        
+        }      
       }
       else
       {
-        lcdPrintf(0, 8, white, "Getting_IP..");        
+        lcdPrintf(x_offset, 8, white, "Not Connected");        
       }
     }
 
+    if (menu == 1)
+    {
+      rtc_time_t rtc_time;
+      rtc_date_t rtc_date;
+      const char *week_str[] = {"일", "월", "화", "수", "목", "금", "토"};
+
+      rtcGetTime(&rtc_time);
+      rtcGetDate(&rtc_date);
+
+      lcdPrintf(x_offset, 0, white,
+                "%02d-%02d-%02d (%s)",
+                rtc_date.year, rtc_date.month, rtc_date.day, week_str[rtc_date.week]);
+
+      lcdPrintf(x_offset, 16, white,
+                "%02d:%02d:%02d",
+                rtc_time.hours, rtc_time.minutes, rtc_time.seconds);
+    }
+
+    if (menu == 2)
+    {
+        imu_info_t imu_info;
+
+      imuUpdate();
+
+      imuGetInfo(&imu_info);
+
+      lcdPrintf(x_offset,  0, white,
+                "R %-4d P %-4d", 
+                (int)imu_info.roll, 
+                (int)imu_info.pitch);
+      lcdPrintf(x_offset, 16, white,
+                "Y %-4d", 
+                (int)imu_info.yaw);
+    }     
     lcdRequestDraw();
   }
 }

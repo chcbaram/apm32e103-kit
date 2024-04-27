@@ -27,6 +27,7 @@ typedef struct
 
 
 bool wiznetInit(void);
+bool wiznetIsInit(void);
 bool wiznetIsLink(void);
 bool wiznetDHCP(void);
 bool wiznetSNTP(void);

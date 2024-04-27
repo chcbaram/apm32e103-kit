@@ -22,6 +22,7 @@ static void wizchip_dhcp_init(void);
 static void wizchip_dhcp_assign(void);
 static void wizchip_dhcp_conflict(void);
 static void wiznetTimerISR(void *arg);
+static bool wiznetInitSNTP(void);
 
 
 static uint8_t memsize[2][8] = {
@@ -38,8 +39,7 @@ static datetime sntp_time;
 static bool is_init = false;
 static bool is_init_dhcp = false;
 static bool is_init_sntp = false;
-
-
+static bool is_chip_found = true;
 
 
 static wiz_NetInfo net_info =
@@ -72,14 +72,33 @@ bool wiznetInit(void)
     ret = false;
   }
 
-
-  logPrintf("[%s] wiznetInit()\n", ret ? "OK":"NG");
-  logPrintf("     ID   : %s\n", id_str);
-  logPrintf("     Link : %s\n", wiznetIsLink() ? "ON":"OFF");
-  is_init = ret;
+  wiz_NetInfo net_cur_info;
 
   ctlnetwork(CN_SET_NETINFO, (void *)&net_info);
-  wiznetPrintInfo(&net_info);
+  ctlnetwork(CN_GET_NETINFO, (void *)&net_cur_info);
+  
+  if (memcmp(&net_info, &net_cur_info, sizeof(wiz_NetInfo)) != 0)
+  {
+    is_chip_found = false;
+    ret = false;
+  }
+
+  is_init = ret;
+
+  logPrintf("[%s] wiznetInit()\n", ret ? "OK":"NG");
+  if (is_init)
+  {
+    logPrintf("     ID   : %s\n", id_str);
+    logPrintf("     Link : %s\n", wiznetIsLink() ? "ON":"OFF");
+    wiznetPrintInfo(&net_info);
+  }
+  else 
+  {
+    if (!is_chip_found)
+    {
+      logPrintf("     Chip Not Found\n");
+    }
+  }
 
 #if CLI_USE(HW_WIZNET)
   cliAdd("wiznet", cliCmd);
@@ -87,11 +106,18 @@ bool wiznetInit(void)
   return ret;
 }
 
+bool wiznetIsInit(void)
+{
+  return is_init;
+}
+
 bool wiznetIsLink(void)
 {
   bool ret = false;
   uint8_t arg = 0;
 
+  if (!is_init)
+    return false;
 
   if (ctlwizchip(CW_GET_PHYLINK, &arg) == 0)
   {
@@ -104,6 +130,9 @@ bool wiznetIsLink(void)
 bool wiznetDHCP(void)
 {
   bool ret = true;
+
+  if (!is_init)
+    return false;
 
 
   wizchip_dhcp_init();
@@ -125,16 +154,30 @@ bool wiznetDHCP(void)
 bool wiznetSNTP(void)
 {
   bool ret = true;
+
+  if (!is_init)
+    return false;
+
+  ret = wiznetInitSNTP();
+
+  logPrintf("[%s] wiznetSNTP()\n", ret ? "OK":"NG");
+
+  return ret;
+}
+
+bool wiznetInitSNTP(void)
+{
+  bool ret = true;
   uint8_t ntp_server[4] = {128, 138, 141, 172};	// time.nist.gov
 	//uint8_t ntp_server[4] = {211, 233, 84, 186};	// kr.pool.ntp.org
 
+  if (!is_init)
+    return false;
 
   SNTP_init(HW_WIZNET_SOCKET_SNTP, ntp_server, 40, sntp_buf);	// timezone: Korea, Republic of
 
   is_init_sntp = true;
   sntp_get_time_flag = false;
-
-  logPrintf("[%s] wiznetSNTP()\n", ret ? "OK":"NG");
 
   return ret;
 }
@@ -270,14 +313,28 @@ void wiznetUpdateDHCP(void)
 
 void wiznetUpdateSNTP(void)
 {
+  static bool pre_link = false;
+  bool cur_link;
+
   if (is_init_sntp != true)
     return;
+
+  cur_link = wiznetIsLink();  
+  if (cur_link == true && pre_link == false)
+  {
+    wiznetInitSNTP();    
+    sntp_get_time_flag = false;
+    logPrintf("[  ] SNTP_init()\n");    
+  }
+  pre_link = cur_link;
+
 
   if (dhcp_get_ip_flag != true)
     return;
 
   if (sntp_get_time_flag == true)
     return;
+
 
   if (SNTP_run(&sntp_time) == true)
   {
@@ -299,7 +356,7 @@ void wiznetUpdateSNTP(void)
     rtc_time.minutes = sntp_time.mm;
     rtc_time.seconds = sntp_time.ss; 
     rtcSetTime(&rtc_time);
-    
+
     eventPub(EVENT_WIZ_PHY_SNTP, 1);
   }
 }
@@ -309,6 +366,9 @@ void wiznetUpdateLink(void)
   static bool first_run = true;
   static bool linked = false;
   bool cur_linked;
+
+  if (is_init == false)
+    return;
 
   if (first_run)
   {
@@ -370,9 +430,11 @@ void cliCmd(cli_args_t *args)
 
   if (args->argc == 1 && args->isStr(0, "info") == true)
   {
-    cliPrintf("is_init   \t: %d\n", is_init);
-    cliPrintf("is_dhcp   \t: %d\n", is_init_dhcp);
+    cliPrintf("is_init   \t: %d\n", is_init ? "True":"False");
+    cliPrintf("is_found  \t: %s\n", is_chip_found ? "True":"False");
+    cliPrintf("is_dhcp   \t: %d\n", is_init_dhcp ? "True":"False");
     cliPrintf("is_ip_get \t: %s\n", wiznetIsGetIP() ? "True":"False");
+
     wiznetPrintInfo(&net_info);
     ret = true;
   }  

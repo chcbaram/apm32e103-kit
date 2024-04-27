@@ -20,32 +20,23 @@ static bool is_init = false;
 bool rtcInit(void)
 {
   bool ret = false;
-  uint32_t pre_time;
 
 
   RCM_EnableAPB1PeriphClock((RCM_APB1_PERIPH_T)(RCM_APB1_PERIPH_PMU | RCM_APB1_PERIPH_BAKR));
   PMU_EnableBackupAccess();
-
+ 
   RCM_ConfigLSE(RCM_LSE_OPEN);
-  pre_time = millis();
-  while (millis()-pre_time <= 100)
-  {
-    if (RCM_ReadStatusFlag(RCM_FLAG_LSERDY) == SET)
-    {
-      ret = true;
-      break;
-    }
-  }
+  delay(10);
 
-  if (ret == true)
-  {
-    RCM_ConfigRTCCLK(RCM_RTCCLK_LSE);
-    RCM_EnableRTCCLK();
+  RCM_ConfigRTCCLK(RCM_RTCCLK_LSE);
+  RCM_EnableRTCCLK();
 
-    RTC_WaitForSynchro();
-    RTC_ConfigPrescaler(32767);
-    RTC_WaitForLastTask();
-  }
+  RTC_WaitForSynchro();
+  RTC_ConfigPrescaler(32767);
+  RTC_WaitForLastTask();
+
+  delay(10);
+  ret = RCM_ReadStatusFlag(RCM_FLAG_LSERDY);
 
   logPrintf("[%s] rtcInit()\n", ret ? "OK":"NG");
   is_init = ret;
@@ -123,7 +114,6 @@ bool rtcSetTime(rtc_time_t *rtc_time)
   rtc_info.time.minutes = rtc_time->minutes;
   rtc_info.time.seconds = rtc_time->seconds;
 
-
   struct tm timeinfo;
   time_t    cur_time;
 
@@ -138,6 +128,7 @@ bool rtcSetTime(rtc_time_t *rtc_time)
   cur_time = mktime(&timeinfo);
 
   RTC_ConfigCounter((uint32_t)cur_time);
+  delay(10);
 
   return true;
 }
@@ -168,6 +159,7 @@ bool rtcSetDate(rtc_date_t *rtc_date)
   cur_time = mktime(&timeinfo);
 
   RTC_ConfigCounter((uint32_t)cur_time);
+  delay(10);
 
   return true;
 }
