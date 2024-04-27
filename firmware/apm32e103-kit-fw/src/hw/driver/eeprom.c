@@ -27,7 +27,7 @@ bool eepromInit()
   bool ret;
 
 
-  ret = i2cBegin(i2c_ch, 400);
+  ret = i2cBegin(i2c_ch, 100);
 
 
   if (ret == true)
