@@ -334,7 +334,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_T *hi2c, uint16_t DevAddress, uint16_t Me
 HAL_StatusTypeDef HAL_I2C_Mem_Write(I2C_T *hi2c, uint16_t DevAddress, uint16_t MemAddress,
                                    uint16_t MemAddSize, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  if ((pData == NULL) || (Size == 0U))
+  if (pData == NULL && Size > 0U)
   {
     return  HAL_ERROR;
   }
@@ -408,5 +408,63 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write(I2C_T *hi2c, uint16_t DevAddress, uint16_t M
   {
     return HAL_ERROR;
   }
+  return HAL_OK;
+}
+
+HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_T *hi2c, uint16_t DevAddress, uint8_t *pData,
+                                         uint16_t Size, uint32_t Timeout)
+{
+  if ((pData == NULL) || (Size == 0U))
+  {
+    return  HAL_ERROR;
+  }
+
+  // BUSY
+  //
+  if (HAL_I2C_BUSY(hi2c) != HAL_OK)
+  {
+    return HAL_ERROR;
+  }
+
+  // RE-START
+  //
+  if (HAL_I2C_START(hi2c) != HAL_OK)
+  {
+    return HAL_ERROR;
+  }
+
+  // ADDR
+  //
+  if (HAL_I2C_ADDR_RX(hi2c, DevAddress) != HAL_OK)
+  {
+    HAL_I2C_STOP(hi2c);
+    return HAL_ERROR;
+  }
+
+  uint32_t pre_time;
+
+
+  pre_time = millis();
+  for (int i=0; i<Size; i++)
+  {
+    bool ack = true;
+
+    if ((i+1) == Size)
+      ack = false;
+
+    if (HAL_I2C_DATA_RX(hi2c, &pData[i], ack, pre_time, Timeout) != HAL_OK)
+    {
+      HAL_I2C_STOP(hi2c);
+      return HAL_ERROR;
+    }
+  }
+
+  // STOP
+  //
+  if (HAL_I2C_STOP(hi2c) != HAL_OK)
+  {
+    return HAL_ERROR;
+  }
+
   return HAL_OK;
 }

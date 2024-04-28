@@ -79,7 +79,7 @@ void updateLCD(void)
 {
   int16_t        x_offset = 10;
   static uint8_t menu     = 0;
-  uint8_t        menu_max = 3;
+  uint8_t        menu_max = 4;
 
 
 
@@ -154,7 +154,7 @@ void updateLCD(void)
 
     if (menu == 2)
     {
-        imu_info_t imu_info;
+      imu_info_t imu_info;
 
       imuUpdate();
 
@@ -168,6 +168,19 @@ void updateLCD(void)
                 "Y %-4d", 
                 (int)imu_info.yaw);
     }     
+
+    if (menu == 3)
+    {
+      static hdc1080_info_t hdc_info;
+
+      hdc1080GetInfo(&hdc_info);
+
+      lcdPrintf(x_offset, 0, white,
+                "온도 : %-3d", (int)hdc_info.temp);
+      lcdPrintf(x_offset, 16, white, 
+                "습도 : %-3d%%", (int)hdc_info.humidity);
+    }     
+      
     lcdRequestDraw();
   }
 }

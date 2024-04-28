@@ -71,6 +71,7 @@ bool hwInit(void)
   wiznetSNTP();
 
   imuInit();
+  hdc1080Init();
 
   return true;
 }

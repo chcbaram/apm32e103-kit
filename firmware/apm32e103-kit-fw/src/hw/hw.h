@@ -32,6 +32,7 @@ extern "C" {
 #include "event.h"
 #include "wiznet/wiznet.h"
 #include "imu.h"
+#include "hdc1080.h"
 
 bool hwInit(void);
 

@@ -38,7 +38,7 @@ bool icm42670Init(void)
 
   if (!i2cIsBegin(i2c_ch))
   {
-    ret = i2cBegin(i2c_ch, 400);
+    ret = i2cBegin(i2c_ch, 100);
   }
 
   if (ret)

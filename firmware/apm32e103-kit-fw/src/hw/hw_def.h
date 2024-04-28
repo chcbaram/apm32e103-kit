@@ -18,6 +18,7 @@
 #define _USE_HW_BUZZER
 #define _USE_HW_ICM42670
 #define _USE_HW_IMU
+#define _USE_HW_HDC1080 
 
 
 #define _USE_HW_LED
@@ -96,6 +97,7 @@
 #define      HW_EVENT_NODE_MAX      16  
 
 
+
 //-- USE CLI
 //
 #define _USE_CLI_HW_LED             1
@@ -115,6 +117,7 @@
 #define _USE_CLI_HW_WIZNET          1
 #define _USE_CLI_HW_ICM42670        1
 #define _USE_CLI_HW_IMU             1
+#define _USE_CLI_HW_HDC1080         1
 
 
 typedef enum
