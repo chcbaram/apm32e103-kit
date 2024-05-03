@@ -106,7 +106,7 @@ void imuComputeIMU( void )
   static uint32_t cur_process_time = 0;
   static uint32_t process_time = 0;
   icm42670_info_t sensor_info;
-  int16_t gyro_offset = 10;
+  int16_t gyro_offset = 15;
 
 
   if (!icm42670GetInfo(&sensor_info))
