@@ -36,6 +36,7 @@ void apMain(void)
 
     updateLED();
     updateLCD();
+    updateSD();
     updateWiznet();
   }
 }
