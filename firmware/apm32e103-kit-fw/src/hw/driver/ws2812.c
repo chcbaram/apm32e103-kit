@@ -75,6 +75,10 @@ bool ws2812Init(void)
   ws2812.led_cnt = WS2812_MAX_CH;
   is_init = true;
 
+  for (int i=0; i<WS2812_MAX_CH; i++)
+  {
+    ws2812SetColor(i, WS2812_COLOR_OFF);
+  }
   ws2812Refresh();
 
 #if CLI_USE(HW_WS2812)
@@ -107,7 +111,7 @@ bool ws2812InitHw(void)
   dmaConfig.peripheralBaseAddr = (uint32_t)&ws2812.h_timer->CC4;
   dmaConfig.memoryBaseAddr     = (uint32_t)bit_buf;
   dmaConfig.dir                = DMA_DIR_PERIPHERAL_DST;
-  dmaConfig.bufferSize         = sizeof(bit_buf);
+  dmaConfig.bufferSize         = sizeof(bit_buf) * 2;
   dmaConfig.peripheralInc      = DMA_PERIPHERAL_INC_DISABLE;
   dmaConfig.memoryInc          = DMA_MEMORY_INC_ENABLE;
   dmaConfig.peripheralDataSize = DMA_PERIPHERAL_DATA_SIZE_HALFWORD;
@@ -128,7 +132,8 @@ bool ws2812InitHw(void)
 bool ws2812Refresh(void)
 {
   DMA_Disable(DMA1_Channel3);
-  DMA_ConfigDataNumber(DMA1_Channel3, sizeof(bit_buf));
+  // 전송 사이즈는 둘중에 가장 큰 단위로 계산해야 하는 것 같다.
+  DMA_ConfigDataNumber(DMA1_Channel3, sizeof(bit_buf)*2);
   DMA_Enable(DMA1_Channel3);
   return true;
 }
@@ -220,7 +225,7 @@ void cliCmd(cli_args_t *args)
       ws2812Refresh();
       color_idx = (color_idx + 1) % 6;
 
-      delay(200);
+      delay(500);
     }
     ret = true;
   }
