@@ -42,6 +42,7 @@ extern "C" {
 #include "apm32e10x_usb_device.h"
 #include "apm32e10x_can.h"
 #include "apm32e10x_tmr.h"
+#include "apm32e10x_adc.h"
 
 
 void logPrintf(const char *fmt, ...);

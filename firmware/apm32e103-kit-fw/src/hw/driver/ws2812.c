@@ -19,7 +19,7 @@ typedef struct
   uint16_t led_cnt;
 } ws2812_t;
 
-static uint8_t bit_buf[BIT_ZERO + 24*HW_WS2812_MAX_CH];
+static uint16_t bit_buf[BIT_ZERO + 24*HW_WS2812_MAX_CH];
 
 
 ws2812_t ws2812;
@@ -111,13 +111,13 @@ bool ws2812InitHw(void)
   dmaConfig.peripheralBaseAddr = (uint32_t)&ws2812.h_timer->CC4;
   dmaConfig.memoryBaseAddr     = (uint32_t)bit_buf;
   dmaConfig.dir                = DMA_DIR_PERIPHERAL_DST;
-  dmaConfig.bufferSize         = sizeof(bit_buf) * 2;
+  dmaConfig.bufferSize         = sizeof(bit_buf);
   dmaConfig.peripheralInc      = DMA_PERIPHERAL_INC_DISABLE;
   dmaConfig.memoryInc          = DMA_MEMORY_INC_ENABLE;
   dmaConfig.peripheralDataSize = DMA_PERIPHERAL_DATA_SIZE_HALFWORD;
-  dmaConfig.memoryDataSize     = DMA_MEMORY_DATA_SIZE_BYTE;
+  dmaConfig.memoryDataSize     = DMA_MEMORY_DATA_SIZE_HALFWORD;
   dmaConfig.loopMode           = DMA_MODE_NORMAL;
-  dmaConfig.priority           = DMA_PRIORITY_HIGH;
+  dmaConfig.priority           = DMA_PRIORITY_LOW;
   dmaConfig.M2M                = DMA_M2MEN_DISABLE;
 
   /* Config TMR3 UP DMA channel */
@@ -133,16 +133,16 @@ bool ws2812Refresh(void)
 {
   DMA_Disable(DMA1_Channel3);
   // 전송 사이즈는 둘중에 가장 큰 단위로 계산해야 하는 것 같다.
-  DMA_ConfigDataNumber(DMA1_Channel3, sizeof(bit_buf)*2);
+  DMA_ConfigDataNumber(DMA1_Channel3, sizeof(bit_buf));
   DMA_Enable(DMA1_Channel3);
   return true;
 }
 
 void ws2812SetColor(uint32_t ch, uint32_t color)
 {
-  uint8_t r_bit[8];
-  uint8_t g_bit[8];
-  uint8_t b_bit[8];
+  uint16_t r_bit[8];
+  uint16_t g_bit[8];
+  uint16_t b_bit[8];
   uint8_t red;
   uint8_t green;
   uint8_t blue;
@@ -191,9 +191,9 @@ void ws2812SetColor(uint32_t ch, uint32_t color)
 
   offset = BIT_ZERO;
 
-  memcpy(&bit_buf[offset + ch*24 + 8*0], g_bit, 8*1);
-  memcpy(&bit_buf[offset + ch*24 + 8*1], r_bit, 8*1);
-  memcpy(&bit_buf[offset + ch*24 + 8*2], b_bit, 8*1);
+  memcpy(&bit_buf[offset + ch*24 + 8*0], g_bit, 8*2);
+  memcpy(&bit_buf[offset + ch*24 + 8*1], r_bit, 8*2);
+  memcpy(&bit_buf[offset + ch*24 + 8*2], b_bit, 8*2);
 }
 
 #if CLI_USE(HW_LED)

@@ -55,6 +55,7 @@ bool hwInit(void)
   sdInit();
   fatfsInit();
   i2sInit();
+  
 
   usbInit();
   usbBegin(USB_CDC_MODE);
@@ -73,5 +74,6 @@ bool hwInit(void)
   imuInit();
   hdc1080Init();
 
+  adcInit();
   return true;
 }

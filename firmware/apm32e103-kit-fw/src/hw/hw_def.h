@@ -96,6 +96,8 @@
 #define      HW_EVENT_Q_MAX         8
 #define      HW_EVENT_NODE_MAX      16  
 
+#define _USE_HW_ADC                 
+#define      HW_ADC_MAX_CH          1
 
 
 //-- USE CLI
@@ -118,6 +120,7 @@
 #define _USE_CLI_HW_ICM42670        1
 #define _USE_CLI_HW_IMU             1
 #define _USE_CLI_HW_HDC1080         1
+#define _USE_CLI_HW_ADC             1
 
 
 typedef enum
@@ -130,5 +133,11 @@ typedef enum
   W5500_INT,
   GPIO_PIN_MAX,  
 } GpioPinName_t;
+
+typedef enum
+{
+  LIGHT_ADC = 0,
+  ADC_PIN_MAX
+} AdcPinName_t;
 
 #endif
