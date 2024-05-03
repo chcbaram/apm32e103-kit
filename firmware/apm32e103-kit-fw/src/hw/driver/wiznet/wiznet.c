@@ -85,7 +85,7 @@ bool wiznetInit(void)
 
   is_init = ret;
 
-  logPrintf("[%s] wiznetInit()\n", ret ? "OK":"NG");
+  logPrintf("[%s] wiznetInit()\n", ret ? "OK":"E_");
   if (is_init)
   {
     logPrintf("     ID   : %s\n", id_str);

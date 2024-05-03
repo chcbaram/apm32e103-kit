@@ -34,7 +34,7 @@ bool imuInit(void)
   is_init = imuBegin();
   ret = is_init;
 
-  logPrintf("[%s] imuInit()\n", ret ? "OK":"NG");
+  logPrintf("[%s] imuInit()\n", ret ? "OK":"E_");
 
 #if CLI_USE(HW_IMU)
   cliAdd("imu", cliCmd);

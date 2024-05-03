@@ -82,7 +82,11 @@ void updateLCD(void)
   uint8_t        menu_max = 4;
 
 
-
+  if (!lcdIsInit())
+  {
+    return;
+  }
+  
   if (buttonGetPressed(_DEF_BUTTON1))
   {
     delay(10);

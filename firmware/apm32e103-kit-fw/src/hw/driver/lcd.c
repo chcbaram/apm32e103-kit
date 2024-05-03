@@ -130,7 +130,7 @@ bool lcdInit(void)
     lcdDrawFillRect(0, 0, LCD_WIDTH, LCD_HEIGHT, black);
     lcdUpdateDraw();
   }
-  logPrintf("[%s] lcdInit()\n", is_init ? "OK":"NG");
+  logPrintf("[%s] lcdInit()\n", is_init ? "OK":"E_");
 
   lcdSetBackLight(100);
 
