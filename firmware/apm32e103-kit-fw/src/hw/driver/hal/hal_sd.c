@@ -219,7 +219,7 @@ SD_ERROR_T SD_Init(void)
     /* Set device to DMA mode */
     errorStatus = SD_SetDeviceMode(SD_DMA_MODE);
   }
-
+  
   return errorStatus;
 }
 
@@ -262,7 +262,7 @@ SD_ERROR_T SD_PowerON(void)
 
   /* The clock frequency can not be set than 400KHz in initalization */
   /* HCLK = 120MHz, SDIOCLK = 120MHz, SDIO_CK = HCLK/(118 + 2) = 400 KHz */
-  sdioConfigStructure.clockDiv  = SDIO_INIT_CLK_DIV;
+  sdioConfigStructure.clockDiv  = SDIO_INIT_CLK_DIV/2;
   sdioConfigStructure.clockEdge = SDIO_CLOCK_EDGE_RISING;
   /* Directly use HCLK to divide the frequency to get SDIO CLOCK */
   sdioConfigStructure.clockBypass = SDIO_CLOCK_BYPASS_DISABLE;
