@@ -79,14 +79,14 @@ void updateLCD(void)
 {
   int16_t        x_offset = 10;
   static uint8_t menu     = 0;
-  uint8_t        menu_max = 4;
+  uint8_t        menu_max = 5;
 
 
   if (!lcdIsInit())
   {
     return;
   }
-  
+
   if (buttonGetPressed(_DEF_BUTTON1))
   {
     delay(10);
@@ -184,7 +184,21 @@ void updateLCD(void)
       lcdPrintf(x_offset, 16, white, 
                 "습도 : %-3d%%", (int)hdc_info.humidity);
     }     
-      
+
+    if (menu == 4)
+    {
+      uint16_t adc_data;
+      uint16_t adc_vol;
+
+      adc_data = adcRead12(LIGHT_ADC);
+      adc_vol = (uint16_t)(adcReadVoltage(LIGHT_ADC) * 1000);
+
+      lcdPrintf(x_offset, 0, white,
+                "ADC  : %04d", adc_data);
+      lcdPrintf(x_offset, 16, white, 
+                "전압 : %-4d mV", adc_vol);
+    }
+
     lcdRequestDraw();
   }
 }

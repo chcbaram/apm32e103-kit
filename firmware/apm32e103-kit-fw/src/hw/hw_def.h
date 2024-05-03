@@ -6,7 +6,7 @@
 #include "bsp.h"
 
 
-#define _DEF_FIRMWATRE_VERSION    "V240416R1"
+#define _DEF_FIRMWATRE_VERSION    "V240503R1"
 #define _DEF_BOARD_NAME           "APM32E103-KIT-FW"
 
 
