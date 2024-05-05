@@ -20,5 +20,30 @@
       "runToEntryPoint": "main",
       "showDevDebugOutput": "none"
     },
+    {
+      "cwd": "${workspaceRoot}",
+      "executable": "./build/apm32e103-kit-fw.elf",
+      "name": "Debug with PyOCD With BOOT",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "pyocd",
+      "serverArgs": [
+        "--target", "apm32e103re",
+      ],
+      "windows": {
+        "gdbPath": "${env:ARM_TOOLCHAIN_DIR}/arm-none-eabi-gdb.exe"
+      },   
+      "runToEntryPoint": "main",
+      "showDevDebugOutput": "none",
+      "overrideRestartCommands": [
+        "load"
+      ],
+      "postStartSessionCommands": [
+        "monitor reset"
+      ],
+      "overrideLaunchCommands": [       
+        "load",
+      ],      
+    },    
   ]
 }

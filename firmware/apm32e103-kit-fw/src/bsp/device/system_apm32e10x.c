@@ -38,6 +38,8 @@
   @{
 */
 
+extern uint32_t _fw_flash_begin;
+
 
 //#define SYSTEM_CLOCK_HSE    HSE_VALUE
 //#define SYSTEM_CLOCK_24MHz  (24000000)
@@ -130,7 +132,8 @@ void SystemInit (void)
 #ifdef VECT_TAB_SRAM
     SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET;
 #else
-    SCB->VTOR = FMC_BASE | VECT_TAB_OFFSET;
+    // SCB->VTOR = FMC_BASE | VECT_TAB_OFFSET;
+    SCB->VTOR = (__IOM uint32_t)&_fw_flash_begin;
 #endif
 }
 

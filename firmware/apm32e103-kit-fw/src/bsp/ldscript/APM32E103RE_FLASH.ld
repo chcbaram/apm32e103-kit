@@ -11,9 +11,9 @@ _Min_Stack_Size = 0x400 ;  /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-  VECTOR    (rx)    : ORIGIN = 0x08000000,   LENGTH = 1K
-  VER       (rx)    : ORIGIN = 0x08000400,   LENGTH = 1K
-  FLASH     (rx)    : ORIGIN = 0x08000800,   LENGTH = 500K
+  VECTOR    (rx)    : ORIGIN = 0x08020400,   LENGTH = 1K
+  VER       (rx)    : ORIGIN = 0x08020800,   LENGTH = 1K
+  FLASH     (rx)    : ORIGIN = 0x08020C00,   LENGTH = 384K - 3K
 
   SRAM     (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K  
 }
