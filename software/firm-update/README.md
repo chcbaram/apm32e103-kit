@@ -1,4 +1,4 @@
-# fw-loader
+# firm-update
 
 ## Configure - macOS
 ~~~
