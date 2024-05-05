@@ -76,17 +76,14 @@ void apInit(void)
     if (lcdIsInit())
     {
       lcdClearBuffer(black);
-      lcdPrintf(0, 8, white, " Update Firm..");
+      lcdPrintf(0, 8, white, " Jump Firm...");
       lcdUpdateDraw();
     }    
-    logPrintf("[  ] bootJumpFirm()\n");
+  
     err_code = bootJumpFirm();
-    if (err_code == OK)
+    if (err_code != OK)
     {
-      logPrintf("[OK]\n");
-    }
-    else
-    {
+      logPrintf("[  ] bootJumpFirm()\n");
       logPrintf("[E_] err : 0x%04X\n", err_code);
       if (bootVerifyUpdate() == OK)
       {
