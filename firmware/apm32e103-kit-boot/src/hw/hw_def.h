@@ -103,7 +103,7 @@
 
 #define FLASH_ADDR_BOOT             0x08000000
 #define FLASH_ADDR_FIRM             0x08020000
-#define FLASH_ADDR_UPDATE           0x91800000
+#define FLASH_ADDR_UPDATE           0x91000000
 
 
 //-- USE CLI
