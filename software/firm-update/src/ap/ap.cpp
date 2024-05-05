@@ -357,7 +357,7 @@ void apDownMode(void)
 
 
   if (arg_option.is_udp == true)
-    ret = bootInitUdp(arg_option.port_str, 5000);
+    ret = bootInitUdp(arg_option.port_str, 5100);
   else
     ret = bootInit(_USE_UART_CMD, arg_option.port_str, baud);
   if (ret != true)
