@@ -11,7 +11,6 @@
 
 
 #define _USE_HW_GPIO
-#define _USE_HW_RTC
 #define _USE_HW_SD
 #define _USE_HW_FATFS
 #define _USE_HW_FILES
@@ -100,6 +99,13 @@
 #define _USE_HW_ADC                 
 #define      HW_ADC_MAX_CH          1
 
+#define _USE_HW_RTC
+#define      HW_RTC_BOOT_MODE       BAKPR_DATA3
+#define      HW_RTC_RESET_BITS      BAKPR_DATA4
+
+#define _USE_HW_RESET
+#define      HW_RESET_BOOT          1
+
 
 //-- USE CLI
 //
@@ -123,6 +129,7 @@
 #define _USE_CLI_HW_HDC1080         1
 #define _USE_CLI_HW_ADC             1
 #define _USE_CLI_HW_FLASH           1
+#define _USE_CLI_HW_RESET           1
 
 
 typedef enum

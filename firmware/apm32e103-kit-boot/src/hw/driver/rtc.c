@@ -164,39 +164,16 @@ bool rtcSetDate(rtc_date_t *rtc_date)
   return true;
 }
 
-
 bool rtcSetReg(uint32_t index, uint32_t data)
 {
-  #if 0
-  if (IS_RTC_BKP(index))
-  {
-    HAL_RTCEx_BKUPWrite(&hrtc, index, data);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-  #else
-  return false;
-  #endif
+  BAKPR_ConfigBackupRegister((BAKPR_DATA_T)index, data);
+  return true;
 }
 
 bool rtcGetReg(uint32_t index, uint32_t *p_data)
 {
-  #if 0
-  if (IS_RTC_BKP(index))
-  {
-    *p_data = HAL_RTCEx_BKUPRead(&hrtc, index);
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-  #else
-  return false;
-  #endif
+  *p_data = BAKPR_ReadBackupRegister((BAKPR_DATA_T)index);
+  return true;
 }
 
 

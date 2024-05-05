@@ -35,7 +35,7 @@ extern "C" {
 #include "hdc1080.h"
 #include "adc.h"
 #include "flash.h"
-
+#include "reset.h"
 
 bool hwInit(void);
 

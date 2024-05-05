@@ -37,6 +37,8 @@ extern "C" {
 #include "flash.h"
 #include "ymodem.h"
 #include "loader.h"
+#include "reset.h"
+
 
 bool hwInit(void);
 

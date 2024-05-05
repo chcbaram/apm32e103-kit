@@ -7,11 +7,59 @@ void updateWiznet(void);
 void updateLCD(void);
 
 
+static bool is_run_fw = true;
+
+
 
 
 
 void apInit(void)
 {
+  uint32_t boot_param;
+
+  boot_param = resetGetBootMode();
+
+
+  if (boot_param & (1<<MODE_BIT_BOOT))
+  {
+    boot_param &= ~(1<<MODE_BIT_BOOT);
+    resetSetBootMode(boot_param);    
+    is_run_fw = false;
+  }
+
+  if (buttonGetPressed(HW_BUTTON_CH_BOOT) == true)
+  {
+    lcdClearBuffer(black);
+    lcdPrintfResize(0, 8, green, 16, "      BOOT   ");
+    lcdDrawRect(0, 0, LCD_WIDTH, LCD_HEIGHT, white);
+    lcdUpdateDraw();
+    delay(500);
+    is_run_fw = false;
+  }
+
+
+  if (is_run_fw)
+  {
+    void (**jump_func)(void) = (void (**)(void))(FLASH_ADDR_FIRM + FLASH_SIZE_TAG + 4); 
+
+    if (((uint32_t)*jump_func) >= FLASH_ADDR_FIRM && ((uint32_t)*jump_func) < (FLASH_ADDR_FIRM + FLASH_SIZE_FIRM))
+    {
+      logPrintf("[  ] Jump Firmware\n");
+      logPrintf("     addr : 0x%X\n", (uint32_t)*jump_func);
+
+      bspDeInit();
+
+      (*jump_func)();
+    }
+    else
+    {
+      cliPrintf("[  ] Jump Address Invalid\n");
+    }
+  }
+
+  logPrintf("\n");
+  logPrintf("Boot Mode..\n"); 
+
   #ifdef _USE_HW_CLI
   cliOpen(HW_UART_CH_CLI, 115200);
   cliLogo();
@@ -39,7 +87,7 @@ void updateLED(void)
   static uint32_t pre_time = 0;
   
   
-  if (millis() - pre_time >= 500)
+  if (millis() - pre_time >= 100)
   {
     pre_time = millis();
     ledToggle(_DEF_LED1);
@@ -73,7 +121,7 @@ void updateLCD(void)
 {
   int16_t        x_offset = 10;
   static uint8_t menu     = 0;
-  uint8_t        menu_max = 2;
+  uint8_t        menu_max = 1;
 
 
   if (!lcdIsInit())
@@ -131,24 +179,6 @@ void updateLCD(void)
         lcdPrintf(x_offset, 0, white, "BOOT");        
         lcdPrintf(x_offset, 16, white, "Not Connected");        
       }
-    }
-
-    if (menu == 1)
-    {
-      rtc_time_t rtc_time;
-      rtc_date_t rtc_date;
-      const char *week_str[] = {"일", "월", "화", "수", "목", "금", "토"};
-
-      rtcGetTime(&rtc_time);
-      rtcGetDate(&rtc_date);
-
-      lcdPrintf(x_offset, 0, white,
-                "%02d-%02d-%02d (%s)",
-                rtc_date.year, rtc_date.month, rtc_date.day, week_str[rtc_date.week]);
-
-      lcdPrintf(x_offset, 16, white,
-                "%02d:%02d:%02d",
-                rtc_time.hours, rtc_time.minutes, rtc_time.seconds);
     }
 
     lcdRequestDraw();

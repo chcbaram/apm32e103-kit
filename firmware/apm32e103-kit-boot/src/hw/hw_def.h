@@ -11,7 +11,6 @@
 
 
 #define _USE_HW_GPIO
-#define _USE_HW_RTC
 #define _USE_HW_SD
 #define _USE_HW_FATFS
 #define _USE_HW_FILES
@@ -43,6 +42,7 @@
 
 #define _USE_HW_BUTTON
 #define      HW_BUTTON_MAX_CH       1
+#define      HW_BUTTON_CH_BOOT      _DEF_BUTTON1
 
 #define _USE_HW_I2C
 #define      HW_I2C_MAX_CH          2
@@ -83,6 +83,13 @@
 #define      HW_EVENT_Q_MAX         8
 #define      HW_EVENT_NODE_MAX      16  
 
+#define _USE_HW_RTC
+#define      HW_RTC_BOOT_MODE       BAKPR_DATA3
+#define      HW_RTC_RESET_BITS      BAKPR_DATA4
+
+#define _USE_HW_RESET
+#define      HW_RESET_BOOT          1
+
 
 #define FLASH_SIZE_TAG              0x400
 #define FLASH_SIZE_VEC              0x400
@@ -111,7 +118,7 @@
 #define _USE_CLI_HW_WIZNET          0
 #define _USE_CLI_HW_FLASH           0
 #define _USE_CLI_HW_LOADER          1
-
+#define _USE_CLI_HW_RESET           1
 
 
 typedef enum

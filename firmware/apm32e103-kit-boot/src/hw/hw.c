@@ -48,6 +48,7 @@ bool hwInit(void)
   logPrintf("\n");
 
   rtcInit();
+  resetInit();
   gpioInit();
   buttonInit();
   i2cInit();

@@ -388,7 +388,7 @@ void wiznetUpdateLink(void)
 void wiznetUpdate(void)
 {
   wiznetUpdateDHCP();
-  wiznetUpdateSNTP();
+  // wiznetUpdateSNTP();
   wiznetUpdateLink();
 }
 
