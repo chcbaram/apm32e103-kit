@@ -36,6 +36,9 @@ extern "C" {
 #include "adc.h"
 #include "flash.h"
 #include "reset.h"
+#include "cmd.h"
+#include "util.h"
+
 
 bool hwInit(void);
 

@@ -554,6 +554,69 @@ void cliCmd(cli_args_t *args)
     ret = true;
   }
 
+  if(args->argc == 3 && args->isStr(0, "check"))
+  {
+    uint32_t data = 0;
+    uint32_t block = 4;
+
+
+    addr    = (uint32_t)args->getData(1);
+    length  = (uint32_t)args->getData(2);
+    length -= (length % block);
+
+    do
+    {
+      cliPrintf("spiFlashErase()..");
+      if (spiFlashErase(addr, length) == false)
+      {
+        cliPrintf("Fail\n");
+        break;
+      }
+      cliPrintf("OK\n");
+
+      cliPrintf("spiFlashWrite()..");
+      for (uint32_t i=0; i<length; i+=block)
+      {
+        data = i;
+        if (spiFlashWrite(addr + i, (uint8_t *)&data, block) == false)
+        {
+          cliPrintf("Fail %d\n", i);
+          break;
+        }
+      }
+      cliPrintf("OK\n");
+
+      cliPrintf("spiFlashRead() ..");
+      for (uint32_t i=0; i<length; i+=block)
+      {
+        data = 0;
+        if (spiFlashRead(addr + i, (uint8_t *)&data, block) == false)
+        {
+          cliPrintf("Fail %d\n", i);
+          break;
+        }
+        if (data != i)
+        {
+          cliPrintf("Check Fail %d\n", i);
+          break;
+        }
+      }  
+      cliPrintf("OK\n");
+
+
+      cliPrintf("spiFlashErase()..");
+      if (spiFlashErase(addr, length) == false)
+      {
+        cliPrintf("Fail\n");
+        break;
+      }
+      cliPrintf("OK\n");  
+    } while (0);
+    
+    ret = true;
+  }
+
+
   if (ret == false)
   {
     cliPrintf( "spiFlash info\n");
@@ -562,6 +625,7 @@ void cliCmd(cli_args_t *args)
     cliPrintf( "spiFlash read  [addr] [length]\n");
     cliPrintf( "spiFlash erase [addr] [length]\n");
     cliPrintf( "spiFlash write [addr] [data]\n");
+    cliPrintf( "spiFlash check [addr] [length]\n");    
   }
 
 }

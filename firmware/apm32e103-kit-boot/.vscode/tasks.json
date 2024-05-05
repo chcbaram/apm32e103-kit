@@ -28,6 +28,6 @@
       "type": "shell",
       "command": "cmake --build build --target clean",
       "problemMatcher": [],
-    }    
+    }  
   ]
 }

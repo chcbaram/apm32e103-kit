@@ -21,6 +21,8 @@
 
 #define _USE_HW_LED
 #define      HW_LED_MAX_CH          1
+#define      HW_LED_CH_DOWN         _DEF_LED1
+#define      HW_LED_CH_UPDATE       _DEF_LED1
 
 #define _USE_HW_UART
 #define      HW_UART_MAX_CH         3
@@ -90,6 +92,9 @@
 #define _USE_HW_RESET
 #define      HW_RESET_BOOT          1
 
+#define _USE_HW_CMD
+#define      HW_CMD_MAX_DATA_LENGTH 1024
+
 
 #define FLASH_SIZE_TAG              0x400
 #define FLASH_SIZE_VEC              0x400
@@ -98,7 +103,7 @@
 
 #define FLASH_ADDR_BOOT             0x08000000
 #define FLASH_ADDR_FIRM             0x08020000
-#define FLASH_ADDR_UPDATE           0x91000000
+#define FLASH_ADDR_UPDATE           0x91800000
 
 
 //-- USE CLI
@@ -108,7 +113,7 @@
 #define _USE_CLI_HW_GPIO            0
 #define _USE_CLI_HW_I2C             0
 #define _USE_CLI_HW_EEPROM          0
-#define _USE_CLI_HW_SPI_FLASH       0
+#define _USE_CLI_HW_SPI_FLASH       1
 #define _USE_CLI_HW_RTC             0
 #define _USE_CLI_HW_SD              0
 #define _USE_CLI_HW_FATFS           0

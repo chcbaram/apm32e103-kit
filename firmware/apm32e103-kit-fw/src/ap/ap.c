@@ -1,11 +1,12 @@
 #include "ap.h"
+#include "modules.h"
 
 
 void updateLED(void);
 void updateSD(void);
 void updateWiznet(void);
 void updateLCD(void);
-
+void updateCMD(void);
 
 
 
@@ -30,6 +31,8 @@ void apInit(void)
 
 void apMain(void)
 {
+  cmdTaskInit();
+
   while(1)
   {
     cliMain();
@@ -38,7 +41,13 @@ void apMain(void)
     updateLCD();
     updateSD();
     updateWiznet();
+    updateCMD();
   }
+}
+
+void updateCMD(void)
+{
+  cmdTaskUpdate();
 }
 
 void updateLED(void)

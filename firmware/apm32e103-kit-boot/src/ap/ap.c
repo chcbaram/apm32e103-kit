@@ -1,14 +1,17 @@
 #include "ap.h"
+#include "modules.h"
+
 
 
 void updateLED(void);
 void updateSD(void);
 void updateWiznet(void);
 void updateLCD(void);
+void updateCMD(void);
 
 
 static bool is_run_fw = true;
-
+static bool is_update_fw = false;
 
 
 
@@ -16,6 +19,7 @@ static bool is_run_fw = true;
 void apInit(void)
 {
   uint32_t boot_param;
+  uint16_t err_code;
 
   boot_param = resetGetBootMode();
 
@@ -29,31 +33,71 @@ void apInit(void)
 
   if (buttonGetPressed(HW_BUTTON_CH_BOOT) == true)
   {
-    lcdClearBuffer(black);
-    lcdPrintfResize(0, 8, green, 16, "      BOOT   ");
-    lcdDrawRect(0, 0, LCD_WIDTH, LCD_HEIGHT, white);
-    lcdUpdateDraw();
-    delay(500);
+    if (lcdIsInit())
+    {
+      lcdClearBuffer(black);
+      lcdPrintfResize(0, 8, green, 16, "      BOOT   ");
+      lcdDrawRect(0, 0, LCD_WIDTH, LCD_HEIGHT, white);
+      lcdUpdateDraw();
+      delay(500);
+    }
     is_run_fw = false;
   }
 
+  if (boot_param & (1<<MODE_BIT_UPDATE))
+  {
+    boot_param &= ~(1<<MODE_BIT_UPDATE);
+    resetSetBootMode(boot_param);
+    
+    is_run_fw = true;
+    is_update_fw = true;
+  }
+  logPrintf("\n");
+
+  if (is_update_fw)
+  {
+    if (lcdIsInit())
+    {
+      lcdClearBuffer(black);
+      lcdPrintf(0, 8, white, " Update Firm..");
+      lcdUpdateDraw();
+    }
+
+    logPrintf("[  ] bootUpdateFirm()\n");
+    err_code = bootUpdateFirm();
+    if (err_code == OK)
+      logPrintf("[OK]\n");
+    else
+      logPrintf("[E_] err : 0x%04X\n", err_code);    
+  }
 
   if (is_run_fw)
   {
-    void (**jump_func)(void) = (void (**)(void))(FLASH_ADDR_FIRM + FLASH_SIZE_TAG + 4); 
-
-    if (((uint32_t)*jump_func) >= FLASH_ADDR_FIRM && ((uint32_t)*jump_func) < (FLASH_ADDR_FIRM + FLASH_SIZE_FIRM))
+    if (lcdIsInit())
     {
-      logPrintf("[  ] Jump Firmware\n");
-      logPrintf("     addr : 0x%X\n", (uint32_t)*jump_func);
-
-      bspDeInit();
-
-      (*jump_func)();
+      lcdClearBuffer(black);
+      lcdPrintf(0, 8, white, " Update Firm..");
+      lcdUpdateDraw();
+    }    
+    logPrintf("[  ] bootJumpFirm()\n");
+    err_code = bootJumpFirm();
+    if (err_code == OK)
+    {
+      logPrintf("[OK]\n");
     }
     else
     {
-      cliPrintf("[  ] Jump Address Invalid\n");
+      logPrintf("[E_] err : 0x%04X\n", err_code);
+      if (bootVerifyUpdate() == OK)
+      {
+        logPrintf("[  ] retry update\n");
+        if (bootUpdateFirm() == OK)
+        {
+          err_code = bootJumpFirm();
+          if (err_code != OK)
+            logPrintf("[E_] err : 0x%04X\n", err_code);
+        }
+      }      
     }
   }
 
@@ -69,6 +113,9 @@ void apInit(void)
 
 void apMain(void)
 {
+  cmdTaskInit();
+
+
   while(1)
   {
     #ifdef _USE_HW_CLI
@@ -79,7 +126,13 @@ void apMain(void)
     updateLCD();
     updateSD();
     updateWiznet();
+    updateCMD();
   }
+}
+
+void updateCMD(void)
+{
+  cmdTaskUpdate();
 }
 
 void updateLED(void)

@@ -28,6 +28,17 @@
       "type": "shell",
       "command": "cmake --build build --target clean",
       "problemMatcher": [],
-    }    
+    },
+    {
+      "label": "firm-update",
+      "type": "shell",
+      "osx": {
+        "command": "tools/mac/firm-update -p /dev/cu.usbserial-1220 -b 115200 -f build/apm32e103-kit-fw.bin"
+      },
+      "windows":{
+        "command": "tools/win/firm-update.exe -p com1 -b 115200 -f build/apm32e103-kit-fw.bin"
+      },      
+      "problemMatcher": [],
+    }        
   ]
 }

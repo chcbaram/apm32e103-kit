@@ -79,7 +79,7 @@ bool spiBegin(uint8_t ch)
 
       p_spi->p_hw->p_cfg->mode        = SPI_MODE_MASTER;
       p_spi->p_hw->p_cfg->length      = SPI_DATA_LENGTH_8B;
-      p_spi->p_hw->p_cfg->baudrateDiv = SPI_BAUDRATE_DIV_2;
+      p_spi->p_hw->p_cfg->baudrateDiv = SPI_BAUDRATE_DIV_4;
       p_spi->p_hw->p_cfg->direction   = SPI_DIRECTION_2LINES_FULLDUPLEX;
       p_spi->p_hw->p_cfg->firstBit    = SPI_FIRSTBIT_MSB;
       p_spi->p_hw->p_cfg->polarity    = SPI_CLKPOL_LOW;

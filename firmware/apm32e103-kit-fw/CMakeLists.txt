@@ -68,7 +68,7 @@ add_executable(${EXECUTABLE}
 target_include_directories(${EXECUTABLE} PRIVATE 
   src  
   src/ap
-  src/ap/thread
+  src/ap/modules
   src/bsp
   src/bsp/device
   src/common 

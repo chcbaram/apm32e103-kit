@@ -27,6 +27,9 @@ bool flashInit(void)
 
   logPrintf("[OK] flashInit()\n");
 
+  FMC_Unlock();
+  FMC_ClearStatusFlag(FMC_FLAG_OC | FMC_FLAG_PE | FMC_FLAG_WPE);
+
 #ifdef _USE_HW_CLI
   cliAdd("flash", cliFlash);
 #endif
@@ -111,8 +114,8 @@ bool flashErase(uint32_t addr, uint32_t length)
   }
 
 
-  FMC_Unlock();
-  FMC_ClearStatusFlag(FMC_FLAG_OC | FMC_FLAG_PE | FMC_FLAG_WPE);
+  // FMC_Unlock();
+  // FMC_ClearStatusFlag(FMC_FLAG_OC | FMC_FLAG_PE | FMC_FLAG_WPE);
 
   if (start_sector >= 0)
   {
@@ -137,7 +140,8 @@ bool flashErase(uint32_t addr, uint32_t length)
     }
   }
 
-  FMC_Lock();
+  // FMC_WaitForLastOperation(100);
+  // FMC_Lock();
 
   return ret;
 }
@@ -169,8 +173,8 @@ bool flashWrite(uint32_t addr, uint8_t *p_data, uint32_t length)
   }
 #endif
 
-  FMC_Unlock();
-  FMC_ClearStatusFlag(FMC_FLAG_OC | FMC_FLAG_PE | FMC_FLAG_WPE);
+  // FMC_Unlock();
+  // FMC_ClearStatusFlag(FMC_FLAG_OC | FMC_FLAG_PE | FMC_FLAG_WPE);
 
   index = 0;
   offset = addr%FLASH_WRITE_SIZE;
@@ -232,7 +236,8 @@ bool flashWrite(uint32_t addr, uint8_t *p_data, uint32_t length)
     }
   }
 
-  FMC_Lock();
+  // FMC_WaitForLastOperation(100);
+  // FMC_Lock();
 
   return ret;
 }

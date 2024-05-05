@@ -38,6 +38,8 @@ extern "C" {
 #include "ymodem.h"
 #include "loader.h"
 #include "reset.h"
+#include "cmd.h"
+#include "util.h"
 
 
 bool hwInit(void);
