@@ -21,7 +21,7 @@
 #define ERR_BOOT_TAG_MAGIC            0x0013
 #define ERR_BOOT_TAG_SIZE             0x0014
 #define ERR_BOOT_FLASH_READ           0x0015
-
+#define ERR_BOOT_FILE_OPEN            0x0016
 
 #define ERR_CMD_MAX_LENGTH            0x0020
 #define ERR_CMD_CHECKSUM              0x0021

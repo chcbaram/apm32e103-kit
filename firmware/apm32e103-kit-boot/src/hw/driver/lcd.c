@@ -212,6 +212,9 @@ LCD_OPT_DEF void lcdClear(uint32_t rgb_code)
 LCD_OPT_DEF void lcdClearBuffer(uint32_t rgb_code)
 {
   uint16_t *p_buf = lcdGetFrameBuffer();
+  
+  if (!lcdIsInit())
+    return;
 
   for (int i=0; i<LCD_WIDTH * LCD_HEIGHT; i++)
   {

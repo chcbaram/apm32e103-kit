@@ -8,6 +8,7 @@ void updateSD(void);
 void updateWiznet(void);
 void updateLCD(void);
 void updateCMD(void);
+void updateFirmFromSD(void);
 
 
 static bool is_run_fw = true;
@@ -42,6 +43,8 @@ void apInit(void)
       delay(500);
     }
     is_run_fw = false;
+
+    updateFirmFromSD();
   }
 
   if (boot_param & (1<<MODE_BIT_UPDATE))
@@ -255,5 +258,72 @@ void updateLCD(void)
     }
 
     lcdRequestDraw();
+  }
+}
+
+void updateFirmFromSD(void)
+{
+  uint32_t pre_time;
+  uint32_t time_cnt = 0;
+
+
+  if (!fatfsInit())
+  {
+    return;
+  }
+
+  pre_time = millis();
+
+  while(time_cnt < 4)
+  {
+    if (millis()-pre_time >= 1000)
+    {
+      pre_time = millis();
+      time_cnt++;
+    }
+
+    if (buttonGetPressed(HW_BUTTON_CH_BOOT) != true)
+    {
+      return;
+    }
+
+    if (lcdIsInit())
+    {
+      if (lcdDrawAvailable())
+      {
+        lcdClearBuffer(black);
+        lcdPrintfResize(0, 8, green, 16, "  SD Wait %d/3", time_cnt);
+        lcdDrawRect(0, 0, LCD_WIDTH, LCD_HEIGHT, white);
+        lcdRequestDraw();
+      }
+    }
+  }
+
+  if (lcdIsInit())
+  {
+    lcdClearBuffer(black);
+    lcdPrintfResize(0, 8, green, 16, "  SD Update..");
+    lcdUpdateDraw();
+    delay(500);
+  }
+
+  FILE *fp;
+  if ((fp = fopen("apm32e103-kit-fw.bin", "rb")) != NULL)
+  {
+    fclose(fp);
+    if (bootUpdateFirmFromFile("apm32e103-kit-fw.bin") == OK)
+    {
+      is_run_fw = true;
+    }
+  } 
+  else 
+  {
+    if (lcdIsInit())
+    {    
+      lcdClearBuffer(black);
+      lcdPrintf(0, 8, green, "  No File");
+      lcdUpdateDraw();
+      delay(500);
+    }
   }
 }
