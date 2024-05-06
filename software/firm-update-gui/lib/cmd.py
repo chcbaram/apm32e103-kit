@@ -2,6 +2,7 @@ import time
 import serial
 import copy
 import serial.tools.list_ports as sp
+import socket
 
 from PySide6.QtCore import QThread, QObject, Signal, QMutex
 from lib.err_code import *
@@ -20,6 +21,90 @@ PKT_TYPE_CAN   = 0x05
 PKT_TYPE_UART  = 0x06
 
 
+
+class CmdDrvUart:
+  def __init__(self):
+    super().__init__()
+    self.port = None
+    self.baud = 115200
+    self.uart_port = serial.Serial(timeout=0.1)   
+    self.is_open = False
+
+  def open(self, port, baud):
+    try :
+      self.uart_port.port = port
+      self.uart_port.baudrate = baud
+      self.uart_port.open()
+      time.sleep(0.1)
+      self.uart_port.flush()
+      self.uart_port.flushInput()
+      self.uart_port.flushOutput()
+      self.is_open = True
+      # self.uart_port.timeout = 0.1
+      print('Uart::open() OK')
+    except :
+      self.is_open = False
+      print('Uart::open() Fail')    
+    return self.is_open
+
+  def close(self):  
+    if self.uart_port is not None:
+      if self.uart_port.is_open == True:
+        self.is_open = False
+        try:
+          self.uart_port.cancel_read()
+          self.uart_port.cancel_write() 
+          self.uart_port.close()        
+          print('Uart::close()')
+        except:
+          pass
+
+  def write(self, data, length):
+    self.uart_port.write_timeout = 5
+    ret = self.uart_port.write(data)
+    return ret
+
+  def read(self):
+    return self.uart_port.read()
+
+
+class CmdDrvUdp:
+  def __init__(self):
+    super().__init__()
+    self.is_init = False
+    self.str_port = ""
+    self.str_ip = ""
+    self.port = None
+    self.is_open = False
+
+  def open(self, port, baud):
+    self.is_init = True
+    self.is_open = True
+    self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    return self.is_open
+
+  def __del__(self):
+    if self.is_open:
+      self.sock.close()
+    
+  def close(self):  
+    if self.is_open:
+      self.is_open = False
+      self.sock.close()
+
+  def write(self, data, length):
+    if len(self.str_ip) == 0:
+      ret = self.sock.sendto(data, ("255.255.255.255", 5100))
+    else:
+      ret = self.sock.sendto(data, (self.str_ip, 5100))
+    return ret
+
+  def read(self):
+    data, addr = self.sock.recvfrom(1024)
+    self.str_ip = str(addr[0])
+    self.str_port = str(addr[1])    
+    return data
 
 
 def millis():
@@ -40,11 +125,11 @@ class CmdPacket:
 class CmdThread(QThread):
   event_sig = Signal(CmdPacket)
 
-  def __init__(self, port, resp_q):
+  def __init__(self, driver, resp_q):
     super().__init__()
     self.working = True
     self.request_exit = False    
-    self.port = port
+    self.driver = driver
     self.packet_state = 0
     self.packet = CmdPacket()
 
@@ -57,7 +142,7 @@ class CmdThread(QThread):
   def run(self):
     while self.working:
       try:
-        data =  self.port.read()
+        data =  self.driver.read()
         self.parsingPacket(data)
       except Exception as e:
         time.sleep(0.001)
@@ -186,7 +271,7 @@ class CmdThread(QThread):
 class Cmd(QObject):
   rxd_sig = Signal(CmdPacket)
 
-  def __init__(self):
+  def __init__(self, driver):
     super().__init__()
     self.is_init = False
     self.is_open = False
@@ -194,55 +279,36 @@ class Cmd(QObject):
     self.mutex = QMutex()
     self.mutex_send = QMutex()
 
-    self.uart_port = serial.Serial(timeout=0.1)   
-    self.rxd_thread = CmdThread(self.uart_port, self.resp_q)    
+    self.driver = driver
+    self.rxd_thread = CmdThread(self.driver, self.resp_q)    
     self.rxd_thread.start()    
     self.rxd_thread.setRxdSignal(self.eventSignal)
 
   def __del__(self):
-    self.uart_port.close()
+    self.driver.close()
     self.rxd_thread.stop()
     print("cmd->del()")
 
   def init(self):
     return
   
-  def open(self, port, baud):
-    self.port = port
-    self.baud = baud
-    try :
-      self.uart_port.port = port
-      self.uart_port.baudrate = baud
-      self.uart_port.open()
-      time.sleep(0.1)
-      self.uart_port.flush()
-      self.uart_port.flushInput()
-      self.uart_port.flushOutput()
-      self.is_open = True
-      # self.uart_port.timeout = 0.1
-      print('Uart::open() OK')
-    except :
-      self.is_open = False
-      print('Uart::open() Fail')
+  def setDriver(self, driver):
+    self.driver = driver
 
+  def open(self, port, baud):
+    self.is_open = self.driver.open(port, baud)
     return self.is_open
 
   def stop(self):
+    self.driver.close()
     self.rxd_thread.stop()
     print("cmd->stop()")
     return
 
   def close(self):  
-    if self.uart_port is not None:
-      if self.uart_port.is_open == True:
-        self.is_open = False
-        try:
-          self.uart_port.cancel_read()
-          self.uart_port.cancel_write() 
-          self.uart_port.close()        
-          print('Uart::close()')
-        except:
-          pass
+    self.is_open = False
+    self.driver.close()
+
 
   def send(self, type, cmd, err_code, data, length):
     index = 0
@@ -271,9 +337,8 @@ class Cmd(QObject):
     buffer[index] = check_sum & 0xFF
     index += 1
 
-    self.uart_port.write_timeout = 5
     self.mutex_send.lock()
-    tx_len = self.uart_port.write(buffer)
+    tx_len = self.driver.write(buffer, len(buffer))
     self.mutex_send.unlock()
 
   def sendCmd(self, cmd, data, length):

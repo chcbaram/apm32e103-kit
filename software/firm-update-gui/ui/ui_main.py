@@ -81,7 +81,7 @@ class Ui_MainWindow(object):
 
         self.radio_scan_udp = QRadioButton(self.frame)
         self.radio_scan_udp.setObjectName(u"radio_scan_udp")
-        self.radio_scan_udp.setEnabled(False)
+        self.radio_scan_udp.setEnabled(True)
 
         self.horizontalLayout_3.addWidget(self.radio_scan_udp)
 

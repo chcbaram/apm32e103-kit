@@ -21,6 +21,8 @@ from lib.down_firm import *
 from configparser import ConfigParser
 
 
+CMD_DRV_UART = 0
+CMD_DRV_UDP  = 1
 
 
 
@@ -41,13 +43,19 @@ class MainWindow(QMainWindow):
 
     gui_ver = 'FIRM-UPDATE-GUI 24-05-06'
     
+    self.cur_driver = CMD_DRV_UART
+
     self.log = LogWidget(self.ui.log_text)
     self.log.setTimeLog(True)
     self.log.printLog(gui_ver + '\n')
     self.setWindowTitle(gui_ver)
     self.file_list = []
-    self.cmd = Cmd()
+    # self.cmd_drv = [CmdDrvUart(), CmdDrvUdp()]
+    
+    self.cmd_list = [Cmd(CmdDrvUart()), Cmd(CmdDrvUdp())]
+    self.cmd = self.cmd_list[self.cur_driver]
     self.cmd_boot = CmdBoot(self.cmd)
+    
     self.device_info = []
     self.is_fdcan = []
     self.down_thread = None
@@ -74,7 +82,9 @@ class MainWindow(QMainWindow):
     self.setClickedEvent(self.ui.btn_syslog_clear, self.btnSysLogClear)  
 
     self.ui.combo_device.currentTextChanged.connect(self.onComboDeviceChanged)
- 
+    self.ui.radio_scan_uart.clicked.connect(self.onScanUart)
+    self.ui.radio_scan_udp.clicked.connect(self.onScanUdp)
+
     self.ui.radio_scan_uart.setChecked(True)
     self.ui.radio_scan_udp.setChecked(False)
     self.ui.btn_connect.setEnabled(False)
@@ -95,6 +105,22 @@ class MainWindow(QMainWindow):
   #     self.tab_rs485.rxdEvent(packet)
   #   if packet.type == PKT_TYPE_CAN:
   #     self.tab_can.rxdEvent(packet)
+
+  def onScanUart(self):
+    self.log.printLog("UART")
+    self.updateBtn()
+
+  def onScanUdp(self):
+    self.log.printLog("UDP")
+    self.updateBtn()
+
+
+  def setCmdDriver(self, driver_idx):
+    self.cur_driver = driver_idx
+
+    self.cmd = self.cmd = self.cmd_list[self.cur_driver]
+    self.cmd_boot.setCmd(self.cmd)
+    
 
   def loadInit(self):        
     self.config = ConfigParser() 
@@ -140,7 +166,8 @@ class MainWindow(QMainWindow):
     self.saveConfig()      
 
   def __del__(self):
-    self.cmd.stop()
+    for item in self.cmd_list:
+      item.stop()
     print("del()")
 
   def setClickedEvent(self, event_dst, event_func):
@@ -155,32 +182,25 @@ class MainWindow(QMainWindow):
 
     self.ui.combo_device.clear()
     self.device_info.clear()
-    self.is_fdcan.clear()
 
     ports = sorted(sp.comports())
 
     for i in ports :
       # print(str(i) + " \t" + str(i.usb_info()))
       found_device = False
-      is_fdcan = False
-      if self.ui.radio_scan_udp.isChecked():
-        if i.vid == 0x0483 and i.pid == 0x5740:
-          found_device = True
-      else:
-        if i.vid is not None:
-          found_device = True  
+      if i.vid is not None:
+        found_device = True  
 
-      if i.vid == 0x0483 and i.pid == 0x5740:
-        is_fdcan = True
 
       if found_device == True:
-        self.is_fdcan.append(is_fdcan)
         self.device_info.append("S/N : " + str(i.serial_number))
         self.ui.combo_device.addItem(i.device)      
         item_tip_str = i.manufacturer
         if i.description is None:
           item_tip_str = item_tip_str + ' ' +  i.description
         self.ui.combo_device.setItemData(self.ui.combo_device.count()-1, item_tip_str, Qt.ToolTipRole)
+  
+
 
   def onComboDeviceChanged(self, value):
     if self.ui.combo_device.count() == 0:
@@ -211,29 +231,28 @@ class MainWindow(QMainWindow):
     self.syslog.clear()
 
   def btnConnect(self):
-    if self.ui.combo_device.count() == 0:
-      return    
+    if self.ui.radio_scan_uart.isChecked():
+      self.setCmdDriver(CMD_DRV_UART)
+      if self.ui.combo_device.count() == 0:
+        return    
 
-    if self.cmd.is_open:
-      self.cmd.close()
-      return   
+      if self.cmd.is_open:
+        self.cmd.close()
+        return   
 
-    index = self.ui.combo_device.currentIndex() 
-    port = self.ui.combo_device.currentText()
-    if self.is_fdcan[index] == True:
-      baud = 600
-    else:
+      index = self.ui.combo_device.currentIndex() 
+      port = self.ui.combo_device.currentText()
       baud = 115200
 
-    self.log.printLog("BAUD : " + str(baud))
+      self.log.printLog("UART ")
+      self.log.printLog("BAUD : " + str(baud))
 
-    ret = self.cmd.open(port, baud)
-    if ret == False:
-      self.log.printLog("Uart Open Fail")
-      return
+      ret = self.cmd.open(port, baud)
+      if ret == False:
+        self.log.printLog("Uart Open Fail")
+        return
 
-    time.sleep(0.1)
-    if self.is_fdcan[index] == True:
+      time.sleep(0.1)
       is_connected = False
 
       for i in range(3):
@@ -255,7 +274,41 @@ class MainWindow(QMainWindow):
       if is_connected != True:
         self.log.printLog("Connect Fail")
         self.cmd.close()
-      
+    else:
+      self.setCmdDriver(CMD_DRV_UDP)
+      if self.cmd.is_open:
+        self.cmd.close()
+        return   
+
+      self.log.printLog("UDP ")
+
+      ret = self.cmd.open("", "")
+      if ret == False:
+        self.log.printLog("UDP Open Fail")
+        return
+
+      time.sleep(0.1)
+      is_connected = False
+
+      for i in range(3):
+        err_code, resp = self.cmd_boot.readVersion(100)
+        if err_code == OK:
+          self.ui.text_device_info.clear()
+          self.ui.text_device_info.appendPlainText("IP " + self.cmd.driver.str_ip + ":" + self.cmd.driver.str_port)    
+          self.ui.text_device_info.appendPlainText("    ")          
+          self.ui.text_device_info.appendPlainText(resp.boot.name_str)
+          self.ui.text_device_info.appendPlainText("    " + resp.boot.version_str)
+
+          self.ui.text_device_info.appendPlainText(resp.firm.name_str)
+          self.ui.text_device_info.appendPlainText("    " + resp.firm.version_str)     
+          is_connected = True
+          break
+        time.sleep(0.1)
+
+      if is_connected != True:
+        self.log.printLog("Connect Fail")
+        self.cmd.close()
+
   def isCanDown(self):
     if self.ui.btn_down.isEnabled() == False:
       return False    
@@ -307,7 +360,10 @@ class MainWindow(QMainWindow):
   def updateBtn(self):
     if self.ui.combo_device.count() == 0:
       self.ui.btn_connect.setText("Connect")
-      self.ui.btn_connect.setEnabled(False)   
+      if self.ui.radio_scan_uart.isChecked():
+        self.ui.btn_connect.setEnabled(False)   
+      else:
+        self.ui.btn_connect.setEnabled(True)   
     else:
       if self.cmd.is_open:
         self.ui.btn_connect.setText("Disconnect")

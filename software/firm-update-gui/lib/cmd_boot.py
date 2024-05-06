@@ -50,6 +50,8 @@ class CmdBoot:
   def __del__(self):
     pass
 
+  def setCmd(self, cmd):
+    self.cmd = cmd
 
   def readVersion(self, timeout=500):
     resp = BootVersion()

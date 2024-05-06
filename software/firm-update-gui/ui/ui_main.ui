@@ -69,7 +69,7 @@
          <item>
           <widget class="QRadioButton" name="radio_scan_udp">
            <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
            <property name="text">
             <string>UDP</string>
