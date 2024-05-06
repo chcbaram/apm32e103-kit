@@ -109,7 +109,7 @@
 #define      HW_RESET_BOOT          1
 
 #define _USE_HW_CMD
-#define      HW_CMD_MAX_DATA_LENGTH 1024
+#define      HW_CMD_MAX_DATA_LENGTH 2048
 
 
 

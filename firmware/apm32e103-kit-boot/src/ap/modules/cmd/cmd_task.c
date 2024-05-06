@@ -1,10 +1,11 @@
 #include "cmd_task.h"
 #include "driver/cmd_uart.h"
+#include "driver/cmd_udp.h"
 #include "process/cmd_boot.h"
 
 
 
-#define CMD_DRIVER_MAX_CH     2
+#define CMD_DRIVER_MAX_CH     3
 
 
 static cmd_t        cmd[CMD_DRIVER_MAX_CH];
@@ -22,6 +23,12 @@ bool cmdTaskInit(void)
   cmdUartInitDriver(&cmd_drvier[1], HW_UART_CH_EXT, 115200);
   cmdInit(&cmd[1], &cmd_drvier[1]);
   cmdOpen(&cmd[1]);
+
+  cmdUdpInitDriver(&cmd_drvier[2], NULL, 5100);  
+  cmdInit(&cmd[2], &cmd_drvier[2]);
+  cmdOpen(&cmd[2]);  
+
+  cmdBootInit();
   return true;
 }
 

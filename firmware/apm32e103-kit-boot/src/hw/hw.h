@@ -40,6 +40,7 @@ extern "C" {
 #include "reset.h"
 #include "cmd.h"
 #include "util.h"
+#include "qbuffer.h"
 
 
 bool hwInit(void);

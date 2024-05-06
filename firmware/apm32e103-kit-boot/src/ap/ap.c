@@ -169,9 +169,11 @@ void updateWiznet(void)
 
 void updateLCD(void)
 {
-  int16_t        x_offset = 10;
-  static uint8_t menu     = 0;
-  uint8_t        menu_max = 1;
+  int16_t         x_offset = 10;
+  static uint8_t  menu     = 0;
+  uint8_t         menu_max = 1;
+  uint8_t         menu_cur = 0;
+  cmd_boot_info_t cmd_boot_info;
 
 
   if (!lcdIsInit())
@@ -187,6 +189,14 @@ void updateLCD(void)
     menu = (menu + 1) % menu_max;
   }
 
+  if (cmdBootIsBusy())
+  {
+    menu_cur = menu_max;
+  }
+  else
+  {
+    menu_cur = menu;
+  }
 
   if (lcdDrawAvailable())
   {
@@ -200,7 +210,7 @@ void updateLCD(void)
     }
 
 
-    if (menu == 0)
+    if (menu_cur == 0)
     {
       if (wiznetIsLink() == true)
       {
@@ -229,6 +239,19 @@ void updateLCD(void)
         lcdPrintf(x_offset, 0, white, "BOOT");        
         lcdPrintf(x_offset, 16, white, "Not Connected");        
       }
+    }
+
+    if (cmdBootIsBusy())
+    {
+      uint16_t percent;
+
+      cmdBootGetInfo(&cmd_boot_info);
+
+      percent = cmd_boot_info.fw_receive_size * 100 / cmd_boot_info.fw_size;
+      lcdClearBuffer(black);
+      lcdPrintf(96, 0, white, "%3d%%", percent);
+      lcdDrawRect(0, 16, 128, 16, white);
+      lcdDrawFillRect(2, 19, percent * 124 / 100, 10, white);      
     }
 
     lcdRequestDraw();

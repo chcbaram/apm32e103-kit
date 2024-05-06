@@ -47,7 +47,7 @@ static boot_begin_t   boot_begin;
 
 static bool is_begin = false;
 static uint32_t fw_receive_size = 0;
-
+static cmd_boot_info_t cmd_boot_info;
 
 
 
@@ -146,6 +146,9 @@ static void bootFirmWrite(cmd_t *p_cmd)
       uint32_t rd_len;
       uint8_t buf[32];
 
+      if (is_begin && fw_receive_size <= addr)
+        fw_receive_size = addr + length;
+        
       while(index < length)
       {
         rd_len = constrain(length - index, 0, 32);
@@ -321,6 +324,11 @@ static void bootFirmBegin(cmd_t *p_cmd)
     err_code = ERR_BOOT_WRONG_RANGE;
   }
 
+  memcpy(cmd_boot_info.fw_name, boot_begin.fw_name, sizeof(boot_begin.fw_name));
+  cmd_boot_info.fw_size         = boot_begin.fw_size;
+  cmd_boot_info.fw_receive_size = 0;
+  cmd_boot_info.is_begin        = is_begin;
+
   cmdSendResp(p_cmd, p_cmd->packet.cmd, err_code, NULL, 0);
 }
 
@@ -331,6 +339,26 @@ static void bootFirmEnd(cmd_t *p_cmd)
   is_begin = false;
 
   cmdSendResp(p_cmd, p_cmd->packet.cmd, err_code, NULL, 0);
+}
+
+bool cmdBootInit(void)
+{
+  cmd_boot_info.is_begin = false;
+  return true;
+}
+
+bool cmdBootIsBusy(void)
+{
+  return is_begin;
+}
+
+void cmdBootGetInfo(cmd_boot_info_t *p_info)
+{
+  cmd_boot_info.fw_size         = boot_begin.fw_size;
+  cmd_boot_info.fw_receive_size = fw_receive_size;
+  cmd_boot_info.is_begin        = is_begin;
+
+  *p_info = cmd_boot_info;
 }
 
 bool cmdBootProcess(cmd_t *p_cmd)

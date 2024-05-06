@@ -87,9 +87,11 @@ void updateWiznet(void)
 
 void updateLCD(void)
 {
-  int16_t        x_offset = 10;
-  static uint8_t menu     = 0;
-  uint8_t        menu_max = 5;
+  int16_t         x_offset = 10;
+  static uint8_t  menu     = 0;
+  uint8_t         menu_max = 5;
+  uint8_t         menu_cur = 0;
+  cmd_boot_info_t cmd_boot_info;
 
 
   if (!lcdIsInit())
@@ -105,6 +107,14 @@ void updateLCD(void)
     menu = (menu + 1) % menu_max;
   }
 
+  if (cmdBootIsBusy())
+  {
+    menu_cur = menu_max;
+  }
+  else
+  {
+    menu_cur = menu;
+  }
 
   if (lcdDrawAvailable())
   {
@@ -118,7 +128,7 @@ void updateLCD(void)
     }
 
 
-    if (menu == 0)
+    if (menu_cur == 0)
     {
       if (wiznetIsLink() == true)
       {
@@ -148,7 +158,7 @@ void updateLCD(void)
       }
     }
 
-    if (menu == 1)
+    if (menu_cur == 1)
     {
       rtc_time_t rtc_time;
       rtc_date_t rtc_date;
@@ -166,7 +176,7 @@ void updateLCD(void)
                 rtc_time.hours, rtc_time.minutes, rtc_time.seconds);
     }
 
-    if (menu == 2)
+    if (menu_cur == 2)
     {
       imu_info_t imu_info;
 
@@ -183,7 +193,7 @@ void updateLCD(void)
                 (int)imu_info.yaw);
     }     
 
-    if (menu == 3)
+    if (menu_cur == 3)
     {
       static hdc1080_info_t hdc_info;
 
@@ -195,7 +205,7 @@ void updateLCD(void)
                 "습도 : %-3d%%", (int)hdc_info.humidity);
     }     
 
-    if (menu == 4)
+    if (menu_cur == 4)
     {
       uint16_t adc_data;
       uint16_t adc_vol;
@@ -207,6 +217,19 @@ void updateLCD(void)
                 "ADC  : %04d", adc_data);
       lcdPrintf(x_offset, 16, white, 
                 "전압 : %-4d mV", adc_vol);
+    }
+
+    if (cmdBootIsBusy())
+    {
+      uint16_t percent;
+
+      cmdBootGetInfo(&cmd_boot_info);
+
+      percent = cmd_boot_info.fw_receive_size * 100 / cmd_boot_info.fw_size;
+      lcdClearBuffer(black);
+      lcdPrintf(96, 0, white, "%3d%%", percent);
+      lcdDrawRect(0, 16, 128, 16, white);
+      lcdDrawFillRect(2, 19, percent * 124 / 100, 10, white);      
     }
 
     lcdRequestDraw();
