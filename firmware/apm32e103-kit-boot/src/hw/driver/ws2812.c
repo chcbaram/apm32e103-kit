@@ -19,7 +19,7 @@ typedef struct
   uint16_t led_cnt;
 } ws2812_t;
 
-static uint16_t bit_buf[BIT_ZERO + 24*HW_WS2812_MAX_CH];
+static uint8_t bit_buf[BIT_ZERO + 24*(HW_WS2812_MAX_CH+1)];
 
 
 ws2812_t ws2812;
@@ -48,6 +48,8 @@ bool ws2812Init(void)
   // Timer 
   //
   RCM_EnableAPB1PeriphClock(RCM_APB1_PERIPH_TMR3);
+
+  TMR_Reset(ws2812.h_timer);
 
   TMR_TimeBaseStruct.clockDivision = TMR_CLOCK_DIV_1;
   TMR_TimeBaseStruct.countMode     = TMR_COUNTER_MODE_UP;
@@ -107,6 +109,8 @@ bool ws2812InitHw(void)
   /* Enable DMA Clock */
   RCM_EnableAHBPeriphClock(RCM_AHB_PERIPH_DMA1);
 
+  DMA_Reset(DMA1_Channel3);
+
   /* DMA config */
   dmaConfig.peripheralBaseAddr = (uint32_t)&ws2812.h_timer->CC4;
   dmaConfig.memoryBaseAddr     = (uint32_t)bit_buf;
@@ -115,7 +119,7 @@ bool ws2812InitHw(void)
   dmaConfig.peripheralInc      = DMA_PERIPHERAL_INC_DISABLE;
   dmaConfig.memoryInc          = DMA_MEMORY_INC_ENABLE;
   dmaConfig.peripheralDataSize = DMA_PERIPHERAL_DATA_SIZE_HALFWORD;
-  dmaConfig.memoryDataSize     = DMA_MEMORY_DATA_SIZE_HALFWORD;
+  dmaConfig.memoryDataSize     = DMA_MEMORY_DATA_SIZE_BYTE;
   dmaConfig.loopMode           = DMA_MODE_NORMAL;
   dmaConfig.priority           = DMA_PRIORITY_LOW;
   dmaConfig.M2M                = DMA_M2MEN_DISABLE;
@@ -140,9 +144,9 @@ bool ws2812Refresh(void)
 
 void ws2812SetColor(uint32_t ch, uint32_t color)
 {
-  uint16_t r_bit[8];
-  uint16_t g_bit[8];
-  uint16_t b_bit[8];
+  uint8_t r_bit[8];
+  uint8_t g_bit[8];
+  uint8_t b_bit[8];
   uint8_t red;
   uint8_t green;
   uint8_t blue;
@@ -191,12 +195,12 @@ void ws2812SetColor(uint32_t ch, uint32_t color)
 
   offset = BIT_ZERO;
 
-  memcpy(&bit_buf[offset + ch*24 + 8*0], g_bit, 8*2);
-  memcpy(&bit_buf[offset + ch*24 + 8*1], r_bit, 8*2);
-  memcpy(&bit_buf[offset + ch*24 + 8*2], b_bit, 8*2);
+  memcpy(&bit_buf[offset + ch*24 + 8*0], g_bit, 8*1);
+  memcpy(&bit_buf[offset + ch*24 + 8*1], r_bit, 8*1);
+  memcpy(&bit_buf[offset + ch*24 + 8*2], b_bit, 8*1);
 }
 
-#if CLI_USE(HW_LED)
+#if CLI_USE(HW_WS2812)
 void cliCmd(cli_args_t *args)
 {
   bool ret = false;

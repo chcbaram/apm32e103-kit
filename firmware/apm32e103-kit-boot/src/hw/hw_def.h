@@ -6,7 +6,7 @@
 #include "bsp.h"
 
 
-#define _DEF_FIRMWATRE_VERSION    "V240503R1"
+#define _DEF_FIRMWATRE_VERSION    "V240506R1"
 #define _DEF_BOARD_NAME           "APM32E103-KIT-BOOT"
 
 
@@ -118,7 +118,7 @@
 #define _USE_CLI_HW_SD              0
 #define _USE_CLI_HW_FATFS           0
 #define _USE_CLI_HW_USB             0
-#define _USE_CLI_HW_WS2812          0
+#define _USE_CLI_HW_WS2812          1
 #define _USE_CLI_HW_EVENT           0
 #define _USE_CLI_HW_WIZNET          0
 #define _USE_CLI_HW_FLASH           0
