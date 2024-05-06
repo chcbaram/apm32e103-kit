@@ -55,7 +55,10 @@ bool cmdUdpInitDriver(cmd_driver_t *p_driver, const char *ip_addr, uint32_t port
   p_driver->read      = read;
   p_driver->write     = write;
 
-  is_init = true;
+  if (wiznetIsInit())
+    is_init = true;
+  else
+    is_init = false;
 
   return true;
 }
@@ -66,6 +69,8 @@ bool open_(void *args)
   int8_t socket_ret;
   cmd_udp_args_t *p_args = (cmd_udp_args_t *)args;
 
+  if (!is_init)
+    return false;
 
   socket_ret = socket(socket_id, Sn_MR_UDP, p_args->port, 0x00);
   if (socket_ret == socket_id)
@@ -96,6 +101,9 @@ uint32_t available(void *args)
   int32_t        recv_len;
   static uint8_t buf[1024];
 
+
+  if (!is_init)
+    return 0;
 
   if (getSn_SR(socket_id) == SOCK_UDP)
   {
@@ -165,7 +173,8 @@ uint32_t write(void *args, uint8_t *p_data, uint32_t length)
   uint32_t pre_time;
   int32_t  socket_ret;
 
-  if (is_init == false) return 0;
+  if (is_init == false)
+    return 0;
 
   if (is_open == true && dest_update == true)
   {
