@@ -1,25 +1,50 @@
+
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR ARM)
 
-#set(ARM_TOOLCHAIN_DIR "D:/tools/gcc-arm-none-eabi-9-2020-q2-update-win32/bin")
-if(DEFINED ENV{ARM_TOOLCHAIN_DIR})
-set(ARM_TOOLCHAIN_DIR $ENV{ARM_TOOLCHAIN_DIR}/)
-else()
- if (WIN32)
- message(FATAL_ERROR "ARM_TOOLCHAIN_DIR Not Defined")
- endif()
+
+set(ARM_POSSIBLE_PATHS
+    "C:/work/tools/baram-fw-tools/arm_toolchain/arm_gcc/test"
+    ENV ARM_TOOLCHAIN_DIR    
+)
+
+set(MAKE_POSSIBLE_PATHS
+    "c:/MinGW-32/bin"
+    ENV MAKE_DIR    
+)
+
+find_program(ARM_TOOLCHAIN_DIR
+    NAMES arm-none-eabi-gcc.exe arm-none-eabi-gcc
+    HINTS ${ARM_POSSIBLE_PATHS}
+    PATH_SUFFIXES bin
+    DOC "ARM GCC Toolchain Directory"
+)
+
+if(NOT ARM_TOOLCHAIN_DIR)
+    message(FATAL_ERROR "ARM Toolchain not found. Please set ARM_TOOLCHAIN_DIR environment variable")
 endif()
-message("ARM_TOOLCHAIN_DIR $ENV{ARM_TOOLCHAIN_DIR}")
+
 
 
 find_program(CMAKE_MAKE_PROGRAM
   NAMES make
         make.exe
   DOC "Find a suitable make program for building under Windows/MinGW"
-  HINTS c:/MinGW-32/bin ) 
+  HINTS ${MAKE_POSSIBLE_PATHS}
+) 
 
-  
-set(TOOLCHAIN_PREFIX ${ARM_TOOLCHAIN_DIR}arm-none-eabi-)
+if(NOT CMAKE_MAKE_PROGRAM)
+    message(FATAL_ERROR "Make program not found. Please set MINGW_DIR environment variable")
+else()
+    message(STATUS "Found Make program: ${CMAKE_MAKE_PROGRAM}")
+endif()
+
+
+# ARM_TOOLCHAIN_DIR에서 실행 파일 이름을 제거하고 경로만 추출  
+get_filename_component(TOOLCHAIN_PATH "${ARM_TOOLCHAIN_DIR}" DIRECTORY)
+set(TOOLCHAIN_PREFIX "${TOOLCHAIN_PATH}/arm-none-eabi-")
+
+
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
