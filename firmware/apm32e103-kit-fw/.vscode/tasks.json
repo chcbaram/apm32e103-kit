@@ -4,15 +4,14 @@
     {
       "label": "build-configure",
       "type": "shell",
-      "command": "cmake -S . -B build",
+      "osx" : {
+        "command": "cmake -S . -B build",
+      },
+      "windows" : {
+        "command": "cmake -S . -B build -G 'MinGW Makefiles'",  
+      },
       "problemMatcher": []
     },  
-    {
-      "label": "build-configure for win",
-      "type": "shell",
-      "command": "cmake -S . -B build -G 'MinGW Makefiles'",
-      "problemMatcher": []
-    },       
     {
       "label": "build-build",
       "type": "shell",
